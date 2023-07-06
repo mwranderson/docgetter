@@ -6,6 +6,7 @@ from pypdf import PdfReader, PdfWriter
 import os
 import warnings
 from dotenv import load_dotenv 
+from io import StringIO
 
 load_dotenv() 
 warnings.simplefilter(action='ignore', category=UnicodeWarning)
@@ -13,8 +14,7 @@ warnings.simplefilter(action='ignore', category=UnicodeWarning)
 #ssh into mercury using paramiko
 host = 'mercury.chicagobooth.edu'
 username = 'erouhani'
-#key = pk.RSAKey.from_private_key_file("./mercury_files/id_rsa")
-key = os.getenv('MERCURY_KEY')
+key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 DF = pd.read_csv('./trans_ref.csv', index_col=0)
 
@@ -167,5 +167,3 @@ def getreport(report):
         print(f'{filename=}')
    
     return [True, filename, multipdf_filename]
-
-getreport(4756390)
