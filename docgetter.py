@@ -36,6 +36,8 @@ def handle_message(event_data):
                 result = getreport(report_id)
                 if not result[0]: #something went wrong. Print relevant message.
                     client.chat_postMessage(channel=channel_id, text=str(result[1]), thread_ts=ts)
+                if result[2]:
+                    client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf file. File: {result[2]} chosen at random.', thread_ts=ts)
                 client.files_upload(channels=channel_id,
                     initial_comment="Here's the report:",
                     file=f'{os.getcwd()}/tempdir/{result[1]}', 

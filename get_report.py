@@ -78,7 +78,6 @@ def df_user(report, transcript_source, key=None, master=False):
     #log out of mercury
     sftp.close() """
 
-
 def pdf_helper(report, file):
     reader = PdfReader("./tempdir/"+file)
     number_of_pages = len(reader.pages)
@@ -92,12 +91,11 @@ def pdf_helper(report, file):
         text = page.extract_text()
         lines = text.split('\n')
         for j, line in enumerate(lines):
-            if break_point:
-                break
             if str(report) in line:
                 match = line
                 page_range = lines[j+1]
                 break_point = True
+                break
     if not match:
         return False
     first_page = int(page_range.split(' ')[0])
@@ -106,29 +104,27 @@ def pdf_helper(report, file):
     writer = PdfWriter()
     for i in range(first_page-1, last_page):
         writer.add_page(reader.pages[i])
-
     with open(f"./tempdir/{report}.pdf", "wb") as fp:
         writer.write(fp)
+    
     os.remove("./tempdir/"+file)
     return f"{report}.pdf"
 
 def getreport(report):
+    multipdf_filename = False
     # decide which folder it's in
     sub = DF[DF.report == report]
     if not sub.shape[0]:
         print('Report does not exist in dataset. Verify report number and try again.')
-        return [False, 'Report does not exist in dataset. Verify report number and try again.']
+        return [False, 'Report does not exist in dataset. Verify report number and try again.', multipdf_filename]
     if (len(set(sub.transcript_source)) > 1) or (len(set(sub.date)) > 1):
         print('Too many options. Requires manual intervention. <@U01KCEYLA85>.')
-        return [False, 'Too many options. Requires manual intervention. <@U01KCEYLA85>.']
-    if len(set(sub.file_name)) > 1:
-        print('Many matching pdfs')
-        #deal with it
-        filename = sub.file_name.values[0]
-        print(f'{filename=}')
-    else:
-        filename = sub.file_name.values[0]
-        print(f'{filename=}')
+        return [False, 'Too many options. Requires manual intervention. <@U01KCEYLA85>.', multipdf_filename]
+    filenames = sub.file_name.to_list()
+    if len(filenames) > 1:
+        print('Multipdf problem. One PDF picked at random.')
+        multipdf_filename = filenames[0]
+    filename = filenames[0]
     transcript_source = sub.transcript_source.values[0]
     print(f'{transcript_source=}')
     event_date = pd.to_datetime(sub.date)
@@ -148,7 +144,7 @@ def getreport(report):
         directory = "/project/FactSet/fdsloader/unzipped_data/"+str(year)
     else:
         print('Invalid transcript source. Requires manual intervention. <@U01KCEYLA85>.')
-        return [False, 'Invalid transcript source. Requires manual intervention. <@U01KCEYLA85>.']
+        return [False, 'Invalid transcript source. Requires manual intervention. <@U01KCEYLA85>.', multipdf_filename]
     
     # get file from mercury
     # log into mercury
@@ -156,16 +152,15 @@ def getreport(report):
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
     ssh.connect(host, username=username, password=password)
     sftp = ssh.open_sftp()
-    #download file
     sftp.get(directory+f'/{filename}',f'./tempdir/{filename}')
+    sftp.close()
     if transcript_source == 0:
-        #if pdf, cut it up and package specific call
-        filename = pdf_helper(report, filename)
+        filename = pdf_helper(report, filenames[0])
         if not filename:
             print('Problem with pdf search. Report not found in large pdf.')
-            return [False, 'Problem with pdf search. Report not found in large pdf.']
-    #log out of mercury
-    sftp.close()
-    return [True, filename]
-
-getreport(2500429)
+            return [False, 'Problem with pdf search. Report not found in large pdf.', multipdf_filename]
+    else:
+        filename = filenames[0]
+        print(f'{filename=}')
+   
+    return [True, filename, multipdf_filename]
