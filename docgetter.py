@@ -21,9 +21,10 @@ slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 client = slack.WebClient(token=SLACK_TOKEN)
 
 
-@app.route('/slack-validation', methods=['GET', 'POST']) 
+@app.route('/', methods=['GET', 'POST']) 
 def hey_slack():
     request_json = request.get_json(silent=True, force=True)
+    print(request_json)
     if request_json.get("challenge") is not None:
         return Response(request_json.get("challenge"), status=200)
     return Response(status=200)
