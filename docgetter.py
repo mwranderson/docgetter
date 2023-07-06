@@ -5,9 +5,12 @@ import os
 from get_report import getreport
 from threading import Thread
 from waitress import serve
+from dotenv import load_dotenv 
+
+load_dotenv() 
  
-SLACK_TOKEN = "xoxb-1510577906593-5535956842660-iWllu47mxMHCR0LtkbzE0Baw"
-SIGNING_SECRET = "4801d54590a7a7cb6b4012bff9535a9d"
+SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 
 app = Flask(__name__)
 slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)

@@ -9,9 +9,8 @@ warnings.simplefilter(action='ignore', category=UnicodeWarning)
 
 #ssh into mercury using paramiko
 host = 'mercury.chicagobooth.edu'
-port = 22
 username = 'erouhani'
-password = 'Zereshkpolo78!'
+key = pk.RSAKey.from_private_key_file("./mercury_files/id_rsa")
 
 DF = pd.read_csv('./trans_ref.csv', index_col=0)
 
@@ -150,7 +149,7 @@ def getreport(report):
     # log into mercury
     ssh = pk.SSHClient()
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
-    ssh.connect(host, username=username, password=password)
+    ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     sftp.get(directory+f'/{filename}',f'./tempdir/{filename}')
     sftp.close()
@@ -164,3 +163,5 @@ def getreport(report):
         print(f'{filename=}')
    
     return [True, filename, multipdf_filename]
+
+getreport(4756390)
