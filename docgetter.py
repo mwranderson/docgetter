@@ -1,4 +1,4 @@
-from slack.web.client import WebClient
+import slack_sdk as slack
 from flask import Flask, Response
 from slackeventsapi import SlackEventAdapter
 import os
@@ -14,7 +14,7 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 
 app = Flask(__name__)
 slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
-client = WebClient(token=SLACK_TOKEN)
+client = slack.WebClient(token=SLACK_TOKEN)
 
 @slack_event_adapter.on("app_mention")
 def handle_message(event_data):

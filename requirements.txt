@@ -1,0 +1,8 @@
+slack-sdk==3.21.3
+flask==2.2.3
+slackeventsapi==3.0.1
+waitress==2.1.2
+python-dotenv==1.0.0
+pandas==1.4.3
+paramiko==2.11.0
+PyPDF2>=2.10.9
