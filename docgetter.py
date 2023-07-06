@@ -34,15 +34,16 @@ def handle_message(event_data):
                 report_id = int(report_id)
                 client.chat_postMessage(channel=channel_id, text=f'Getting report {report_id}...', thread_ts=ts)
                 result = getreport(report_id)
-                if not result[0]: #something went wrong. Print relevant message.
-                    client.chat_postMessage(channel=channel_id, text=str(result[1]), thread_ts=ts)
                 if result[2]:
                     client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf file. File: {result[2]} chosen at random.', thread_ts=ts)
-                client.files_upload(channels=channel_id,
-                    initial_comment="Here's the report:",
-                    file=f'{os.getcwd()}/tempdir/{result[1]}', 
-                    thread_ts = ts)
-                os.remove(f'{os.getcwd()}/tempdir/{result[1]}')
+                if not result[0]: #something went wrong. Print relevant message.
+                    client.chat_postMessage(channel=channel_id, text=str(result[1]), thread_ts=ts)
+                else:
+                    client.files_upload(channels=channel_id,
+                            initial_comment="Here's the report:",
+                            file=f'{os.getcwd()}/tempdir/{result[1]}', 
+                            thread_ts = ts)
+                    os.remove(f'{os.getcwd()}/tempdir/{result[1]}')
         else:
             client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
     thread = Thread(target=send_reply, kwargs={"value": event_data})
