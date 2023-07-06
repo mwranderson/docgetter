@@ -54,5 +54,6 @@ def handle_message(event_data):
     return Response(status=200)
 
 if __name__ == "__main__":
-    serve(app, host="127.0.0.1", port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    serve(app, port=port)
     #app.run(debug=True)
