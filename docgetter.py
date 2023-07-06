@@ -6,6 +6,10 @@ from get_report import getreport
 from threading import Thread
 from waitress import serve
 from dotenv import load_dotenv 
+from requests import request
+import urllib.parse
+import hmac
+import hashlib
 
 load_dotenv() 
  
@@ -15,6 +19,15 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 app = Flask(__name__)
 slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 client = slack.WebClient(token=SLACK_TOKEN)
+
+
+@app.route('/slack-validation', methods=['GET', 'POST']) 
+def hey_slack():
+    request_json = request.get_json(silent=True, force=True)
+    if request_json.get("challenge") is not None:
+        return Response(request_json.get("challenge"), status=200)
+    return Response(status=200)
+
 
 @slack_event_adapter.on("app_mention")
 def handle_message(event_data):
@@ -57,3 +70,4 @@ if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     serve(app, port=port)
     #app.run(debug=True)
+    
