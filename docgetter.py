@@ -17,7 +17,6 @@ app = Flask(__name__)
 slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 client = slack.WebClient(token=SLACK_TOKEN)
 
-
 @app.route('/', methods=['GET', 'POST']) 
 def hey_slack():
     message = request.get_json()
@@ -26,7 +25,6 @@ def hey_slack():
     """ if request_json.get("challenge") is not None:
         return Response(request_json.get("challenge"), status=200) """
     return Response(status=200)
-
 
 @slack_event_adapter.on("app_mention")
 def handle_message(event_data):
@@ -50,7 +48,7 @@ def handle_message(event_data):
                 client.chat_postMessage(channel=channel_id, text=f'Getting report {report_id}...', thread_ts=ts)
                 result = getreport(report_id)
                 if result[2]:
-                    client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf file. File: {result[2]} chosen at random.', thread_ts=ts)
+                    client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf files. \nFile: "{result[2]}" chosen at random.', thread_ts=ts)
                 if not result[0]: #something went wrong. Print relevant message.
                     client.chat_postMessage(channel=channel_id, text=str(result[1]), thread_ts=ts)
                 else:
