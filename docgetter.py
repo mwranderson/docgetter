@@ -54,7 +54,7 @@ def handle_message(event_data):
                 if not result[0]: #something went wrong. Print relevant message.
                     client.chat_postMessage(channel=channel_id, text=str(result[1]), thread_ts=ts)
                 else:
-                    client.files_upload_v2(channels=channel_id,
+                    client.files_upload_v2(channel=channel_id,
                             initial_comment="Here's the report:",
                             file=f'{os.getcwd()}/tempdir/{result[1]}', 
                             thread_ts = ts)
