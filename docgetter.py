@@ -1,12 +1,12 @@
 import slack_sdk as slack
-from flask import Flask, Response
+from flask import Flask, Response, request
 from slackeventsapi import SlackEventAdapter
 import os
 from get_report import getreport
 from threading import Thread
 from waitress import serve
 from dotenv import load_dotenv 
-from requests import request
+#from requests import request
 
 load_dotenv() 
  
@@ -22,8 +22,8 @@ client = slack.WebClient(token=SLACK_TOKEN)
 def hey_slack():
     request_json = request.get_json(silent=True, force=True)
     print(request_json)
-    if request_json.get("challenge") is not None:
-        return Response(request_json.get("challenge"), status=200)
+    """ if request_json.get("challenge") is not None:
+        return Response(request_json.get("challenge"), status=200) """
     return Response(status=200)
 
 
