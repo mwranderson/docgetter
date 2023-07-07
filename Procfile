@@ -1,1 +1,1 @@
- web: gunicorn app:docgetter
+ web: gunicorn docgetter:app
