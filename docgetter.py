@@ -21,6 +21,7 @@ client = slack.WebClient(token=SLACK_TOKEN)
 @app.route('/', methods=['GET', 'POST']) 
 def hey_slack():
     request_json = request.get_json(silent=True, force=True)
+    print('\n\nAHH THIS IS IT, MAN:\n\n')
     print(request_json)
     """ if request_json.get("challenge") is not None:
         return Response(request_json.get("challenge"), status=200) """
