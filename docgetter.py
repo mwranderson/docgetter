@@ -7,9 +7,6 @@ from threading import Thread
 from waitress import serve
 from dotenv import load_dotenv 
 from requests import request
-import urllib.parse
-import hmac
-import hashlib
 
 load_dotenv() 
  
