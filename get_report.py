@@ -63,6 +63,7 @@ def getreport(report):
     if len(filenames) > 1:
         print('Multipdf problem. One PDF picked at random.')
         multipdf_filename = filenames[0]
+    print(f'{report=}')
     filename = filenames[0]
     transcript_source = sub.transcript_source.values[0]
     print(f'{transcript_source=}')
