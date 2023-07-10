@@ -75,11 +75,11 @@ def getreport(report):
     
     if transcript_source == 0:
         if date <= datetime.date(2021, 4, 5):
-            directory = "/project/kh_mercury_1/conference_call/output/01_download_cc/01.1_pdf/20010101-20210405"
+            directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20010101-20210405"
         elif date <= datetime.date(2021, 9, 9):
-            directory = "/project/kh_mercury_1/conference_call/output/01_download_cc/01.1_pdf/20201001-20210909"
+            directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20201001-20210909"
         else:
-            directory = "/project/kh_mercury_1/conference_call/output/01_download_cc/01.1_pdf/20210101-20220617"
+            directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20210101-20220617"
     elif transcript_source == 1:
         directory = "/project/kh_mercury_1/refinitiv_univ/TRANSCRIPT/XML_Add_IDs/Archive/"+str(year)
     elif transcript_source == 2:
