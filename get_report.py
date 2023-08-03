@@ -82,6 +82,8 @@ def getreport(report):
             directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20210101-20220617"
     elif transcript_source == 1:
         directory = "/project/kh_mercury_1/refinitiv_univ/TRANSCRIPT/XML_Add_IDs/Archive/"+str(year)
+        if date >= datetime.date(2023, 1, 1):
+            directory = directory + '/2023_firsthalf'
     elif transcript_source == 2:
         directory = "/project/FactSet/fdsloader/unzipped_data/"+str(year)
     else:
