@@ -1,1 +1,1 @@
- web: gunicorn docgetter:app
+ web: gunicorn docgetter:app --workers 1
