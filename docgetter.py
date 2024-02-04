@@ -1,10 +1,7 @@
 import slack_sdk as slack
 from flask import Flask, Response, request
-from slackeventsapi import SlackEventAdapter
 import os
-from get_report import getreport
-from threading import Thread
-from waitress import serve
+from modules.get_report import getreport
 from dotenv import load_dotenv 
 #from requests import request
 
@@ -14,7 +11,6 @@ SLACK_TOKEN = os.getenv("SLACK_TOKEN")
 SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 
 app = Flask(__name__)
-slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, '/slack/events', app)
 client = slack.WebClient(token=SLACK_TOKEN)
 
 @app.route('/', methods=['GET', 'POST']) 
