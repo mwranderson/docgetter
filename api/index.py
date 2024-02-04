@@ -14,7 +14,7 @@ client = slack.WebClient(token=SLACK_TOKEN)
 
 def send_reply(value):
     event_data = value
-    print(event_data)
+    print(f'{event_data=}')
     event = event_data.get('event', {})
     channel_id = event.get('channel')
     user_id = event.get('user')
@@ -23,6 +23,9 @@ def send_reply(value):
     if thread_ts:
         ts = thread_ts
     text = event.get('text')
+    print(20*'-', end='\n')
+    print(f'{event=}\n{channel_id=}\n{user_id}\n{ts=}\n{thread_ts=}\n{text=}\n')
+    print(20*'-', end='\n')
     if "get report" in text and (len(text.split(' ')) == 4):
         report_id = text.split(' ')[-1]
         if not report_id.isnumeric():
