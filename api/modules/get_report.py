@@ -14,7 +14,6 @@ warnings.simplefilter(action='ignore', category=UnicodeWarning)
 host = 'mercury.chicagobooth.edu'
 username = 'erouhani'
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
-print(f'{key=}')
 
 DF = pd.read_csv('./trans_ref.csv', index_col=0)
 

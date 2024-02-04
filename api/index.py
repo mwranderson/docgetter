@@ -8,7 +8,6 @@ load_dotenv('../.env')
  
 SLACK_TOKEN = os.getenv("SLACK_TOKEN")
 SIGNING_SECRET = os.getenv("SIGNING_SECRET")
-print(f'{SLACK_TOKEN=}')
 
 app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
