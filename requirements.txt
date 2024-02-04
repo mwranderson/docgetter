@@ -9,4 +9,5 @@ PyPDF2>=2.10.9
 pypdf ==3.12.0
 gunicorn==20.1.0
 requests==2.27.1
+werkzeug==2.2.2
 
