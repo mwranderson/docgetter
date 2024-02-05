@@ -100,6 +100,8 @@ def getreport(report):
     # ssh connected getting file
     print(f'{sftp.listdir()=}')
     print(20*'-')
+    print(f'{os.listdir()=}')
+    print(20*'-')
     print(f"{sftp.listdir(directory+f'/{filename}')=}", end=20*'*')
     print(f"{os.listdir('../tempdir')=}")
 
