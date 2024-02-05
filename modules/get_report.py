@@ -102,7 +102,7 @@ def getreport(report):
     print(f"{os.listdir()=}")
     print(f"{os.listdir('./tmp/')=}")
 
-    dirlist = sftp.listdir(f'{directory}/{filename}')
+    dirlist = sftp.listdir(f'{directory}')
     print(f'{dirlist[-1]=}')
     if filename in dirlist:
         print('it does fucking exist')
