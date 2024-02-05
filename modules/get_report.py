@@ -94,15 +94,13 @@ def getreport(report):
     # log into mercury
     print(f'Logging into mercury to get {filename} at {directory}\n')
     ssh = pk.SSHClient()
+    ssh.load_system_host_keys()
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
-    print(f"{sftp.listdir('/project/FactSet/fdsloader/unzipped_data')=}")
-    print(20*'-')
-    #print(f"{sftp.listdir(directory)=}", end=20*'*')
-   
-    sftp.get(directory+f'/{filename}', f'./tempdir/{filename}')
+    
+    sftp.get(directory+f'/{filename}', f'tmp/{filename}')
     sftp.close()
     if transcript_source == 0:
         filename = pdf_helper(report, filenames[0])
