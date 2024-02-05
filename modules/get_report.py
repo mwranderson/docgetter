@@ -99,7 +99,7 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
-    print(f"{os.listdir('tmp/')=}")
+    print(f"{os.listdir('/tmp/')=}")
 
     dirlist = sftp.listdir(directory+f'/{filename}')
     print(f'{dirlist[-1]=}')
@@ -108,7 +108,7 @@ def getreport(report):
     else:
         print('ffs')
     
-    sftp.get(directory+f'/{filename}', f'tmp/{filename}')
+    sftp.get(directory+f'/{filename}', f'/tmp/{filename}')
     sftp.close()
     if transcript_source == 0:
         filename = pdf_helper(report, filenames[0])
