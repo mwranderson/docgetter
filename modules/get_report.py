@@ -92,7 +92,7 @@ def getreport(report):
     
     # get file from mercury
     # log into mercury
-    print(f'Logging into mercury to get {filename} at {directory}\n')
+    print(f'Logging into mercury to get {directory}/{filename}\n')
     ssh = pk.SSHClient()
     ssh.load_system_host_keys()
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
@@ -102,14 +102,14 @@ def getreport(report):
     print(f"{os.listdir()=}")
     print(f"{os.listdir('./tmp/')=}")
 
-    dirlist = sftp.listdir(directory+f'/{filename}')
+    dirlist = sftp.listdir(f'{directory}/{filename}')
     print(f'{dirlist[-1]=}')
     if filename in dirlist:
         print('it does fucking exist')
     else:
         print('ffs')
     
-    sftp.get(directory+f'/{filename}', f'/tmp/{filename}')
+    sftp.get(f'{directory}/{filename}', f'./tmp/{filename}')
     sftp.close()
     if transcript_source == 0:
         filename = pdf_helper(report, filenames[0])
