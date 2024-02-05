@@ -49,7 +49,10 @@ def send_reply(value):
 
 
 def handle_mention(message):
-    send_reply(message)
+    try:
+        send_reply(message)
+    except:
+        print('Ran into issue above(?)')
     return Response(status=200)
 
 @app.route('/', methods=['POST']) 
