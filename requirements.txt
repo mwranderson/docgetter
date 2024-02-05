@@ -1,5 +1,6 @@
 slack-sdk==3.21.3
 flask==2.2.3
+asgiref==3.7.2
 python-dotenv==1.0.0
 pandas==1.4.3
 paramiko==2.11.0
