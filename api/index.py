@@ -49,7 +49,7 @@ def send_reply(value):
 
 
 def handle_mention(message):
-    print(f'{message.get_json().headers=}')
+    print(f'{message.headers=}')
     send_reply(message)
     return Response(status=200)
 
