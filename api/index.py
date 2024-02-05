@@ -3,6 +3,7 @@ from flask import Flask, Response, request
 import os
 from modules.get_report import getreport
 from dotenv import load_dotenv 
+import threading
 
 load_dotenv('../.env')
  
@@ -63,8 +64,10 @@ def app_main():
         print(f'Got challenge:\n {message=}')
         return Response(message.get("challenge"), status=200)
     elif message.get('event').get('type') == 'app_mention':
+        # entering heavy processing
         print('Handling mention...\n')
-        handle_mention(message)
+        handle_session = threading.Thread(target=handle_mention, args=message)
+        handle_session.start()
         return Response(status=200)
     else:
         print(f'Not an app mention.')
