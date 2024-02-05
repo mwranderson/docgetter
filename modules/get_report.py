@@ -98,12 +98,9 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
-    print(f'{sftp.listdir()=}')
+    print(f"{sftp.listdir('/project/FactSet/fdsloader/unzipped_data')=}")
     print(20*'-')
-    print(f'{os.listdir()=}')
-    print(20*'-')
-    print(f"{os.listdir('./tempdir')=}")
-    print(f"{sftp.listdir(directory+f'/{filename}')=}", end=20*'*')
+    print(f"{sftp.listdir(directory)=}", end=20*'*')
    
 
     sftp.get(directory+f'/{filename}', f'./tempdir/{filename}')
