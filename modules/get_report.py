@@ -98,7 +98,8 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected (?) getting file
-    sftp.get(directory+f'/{filename}',f'./tempdir/{filename}')
+    tempdir = '/Users/erouhani/Desktop/Workspace/docgetter_slackapp/tempdir'
+    sftp.get(directory+f'/{filename}',f'./{tempdir}/{filename}')
     sftp.close()
     if transcript_source == 0:
         filename = pdf_helper(report, filenames[0])
