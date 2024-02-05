@@ -100,9 +100,8 @@ def getreport(report):
     # ssh connected getting file
     print(f"{sftp.listdir('/project/FactSet/fdsloader/unzipped_data')=}")
     print(20*'-')
-    print(f"{sftp.listdir(directory)=}", end=20*'*')
+    #print(f"{sftp.listdir(directory)=}", end=20*'*')
    
-
     sftp.get(directory+f'/{filename}', f'./tempdir/{filename}')
     sftp.close()
     if transcript_source == 0:
