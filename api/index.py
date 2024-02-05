@@ -43,7 +43,6 @@ async def send_reply(event_data):
                         initial_comment="Here's the report:",
                         file=f'/tmp/{result[1]}', 
                         thread_ts = ts)
-                #os.remove(f'./tmp/{result[1]}')
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
@@ -53,7 +52,7 @@ async def handle_mention(message):
     return Response(status=200)
 
 @app.route('/', methods=['POST']) 
-def app_main():
+async def app_main():
     message = request.get_json()
     if message.get("challenge") is not None:
         print(f'Got challenge:\n {message=}')
@@ -61,9 +60,7 @@ def app_main():
     elif message.get('event').get('type') == 'app_mention':
         # entering heavy processing
         print('Handling mention...\n')
-        """ handle_session = threading.Thread(target=handle_mention, args=(message,))
-        handle_session.start() """
-        handle_mention(message)
+        await handle_mention(message)
         return Response(status=200)
     else:
         print(f'Not an app mention.')
