@@ -103,9 +103,9 @@ def getreport(report):
     print(f'{os.listdir()=}')
     print(20*'-')
     print(f"{sftp.listdir(directory+f'/{filename}')=}", end=20*'*')
-    print(f"{os.listdir('../tempdir')=}")
+    print(f"{os.listdir('./tempdir')=}")
 
-    sftp.get(directory+f'/{filename}', f'../tempdir/{filename}')
+    sftp.get(directory+f'/{filename}', f'./tempdir/{filename}')
     sftp.close()
     if transcript_source == 0:
         filename = pdf_helper(report, filenames[0])
