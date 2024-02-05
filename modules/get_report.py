@@ -92,7 +92,7 @@ def getreport(report):
     
     # get file from mercury
     # log into mercury
-    print(f'Logging into mercury to get file at {directory=}\n')
+    print(f'Logging into mercury to get {filename} at {directory=}\n')
     ssh = pk.SSHClient()
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
     ssh.connect(host, username=username, pkey=key)
