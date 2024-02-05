@@ -49,13 +49,13 @@ def send_reply(value):
 
 
 def handle_mention(message):
-    print(f'{message.headers=}')
     send_reply(message)
     return Response(status=200)
 
 @app.route('/', methods=['POST']) 
 def app_main():
     message = request.get_json()
+    print(f'{request.headers=}')
     if message.get("challenge") is not None:
         print(f'Got challenge:\n {message=}')
         return Response(message.get("challenge"), status=200)
