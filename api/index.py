@@ -64,8 +64,9 @@ def app_main():
     elif message.get('event').get('type') == 'app_mention':
         # entering heavy processing
         print('Handling mention...\n')
-        handle_session = threading.Thread(target=handle_mention, args=(message,))
-        handle_session.start()
+        """ handle_session = threading.Thread(target=handle_mention, args=(message,))
+        handle_session.start() """
+        handle_mention(message)
         return Response(status=200)
     else:
         print(f'Not an app mention.')
