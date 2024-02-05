@@ -51,8 +51,8 @@ def send_reply(value):
 def handle_mention(message):
     try:
         send_reply(message)
-    except:
-        print('Ran into issue above(?)')
+    except Exception as e:
+        print(f'Ran into issue above: \n{e=}')
     return Response(status=200)
 
 @app.route('/', methods=['POST']) 
@@ -64,7 +64,8 @@ def app_main():
         return Response(message.get("challenge"), status=200)
     elif message.get('event').get('type') == 'app_mention':
         print('Handling mention...\n')
-        return handle_mention(message)
+        handle_mention(message)
+        return Response(status=200)
     else:
         print(f'Not an app mention.')
         return Response(status=200)
