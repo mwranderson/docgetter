@@ -99,6 +99,14 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
+    print(f"{os.listdir('tmp/')=}")
+
+    dirlist = sftp.listdir(directory+f'/{filename}')
+    print(f'{dirlist[-1]=}')
+    if filename in dirlist:
+        print('it does fucking exist')
+    else:
+        print('ffs')
     
     sftp.get(directory+f'/{filename}', f'tmp/{filename}')
     sftp.close()
