@@ -18,7 +18,7 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 DF = pd.read_csv('./trans_ref.csv', index_col=0)
 
 def pdf_helper(report, file):
-    reader = PdfReader("./tempdir/"+file)
+    reader = PdfReader("/tmp/"+file)
     number_of_pages = len(reader.pages)
     break_point = False
     match = False
@@ -45,7 +45,7 @@ def pdf_helper(report, file):
         writer.add_page(reader.pages[i])
     with open(f"/tmp/{report}.pdf", "wb") as fp:
         writer.write(fp)
-        
+
     return f"{report}.pdf"
 
 def getreport(report):
