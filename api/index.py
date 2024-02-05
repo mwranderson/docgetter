@@ -13,7 +13,7 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
 
-def send_reply(event_data):
+async def send_reply(event_data):
     print(f'{event_data=}')
     event = event_data.get('event', {})
     channel_id = event.get('channel')
@@ -48,11 +48,8 @@ def send_reply(event_data):
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
 
-def handle_mention(message):
-    try:
-        send_reply(message)
-    except Exception as e:
-        print(f'Ran into issue above: \n{e=}')
+async def handle_mention(message):
+    await send_reply(message)
     return Response(status=200)
 
 @app.route('/', methods=['POST']) 
