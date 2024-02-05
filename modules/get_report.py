@@ -98,6 +98,11 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
+    print(f'{sftp.listdir()=}')
+    print(20*'-')
+    print(f"{sftp.listdir(directory+f'/{filename}')=}", end=20*'*')
+    print(f"{os.listdir('../tempdir')=}")
+
     sftp.get(directory+f'/{filename}', f'../tempdir/{filename}')
     sftp.close()
     if transcript_source == 0:
