@@ -99,7 +99,8 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
-    print(f"{os.listdir('/tmp/')=}")
+    print(f"{os.listdir()=}")
+    print(f"{os.listdir('./tmp/')=}")
 
     dirlist = sftp.listdir(directory+f'/{filename}')
     print(f'{dirlist[-1]=}')
