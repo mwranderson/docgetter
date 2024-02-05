@@ -43,10 +43,9 @@ def pdf_helper(report, file):
     writer = PdfWriter()
     for i in range(first_page-1, last_page):
         writer.add_page(reader.pages[i])
-    with open(f"./tempdir/{report}.pdf", "wb") as fp:
+    with open(f"/tmp/{report}.pdf", "wb") as fp:
         writer.write(fp)
-    
-    os.remove("./tempdir/"+file)
+        
     return f"{report}.pdf"
 
 def getreport(report):
