@@ -92,10 +92,12 @@ def getreport(report):
     
     # get file from mercury
     # log into mercury
+    print(f'Logging into mercury to get file at {directory=}\n')
     ssh = pk.SSHClient()
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
+    # ssh connected (?) getting file
     sftp.get(directory+f'/{filename}',f'./tempdir/{filename}')
     sftp.close()
     if transcript_source == 0:
