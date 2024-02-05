@@ -13,7 +13,7 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
 
-async def send_reply(event_data):
+def send_reply(event_data):
     print(f'{event_data=}')
     event = event_data.get('event', {})
     channel_id = event.get('channel')
@@ -47,12 +47,12 @@ async def send_reply(event_data):
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
 
-async def handle_mention(message):
-    await send_reply(message)
+def handle_mention(message):
+    send_reply(message)
     return Response(status=200)
 
 @app.route('/', methods=['POST']) 
-async def app_main():
+def app_main():
     message = request.get_json()
     if message.get("challenge") is not None:
         print(f'Got challenge:\n {message=}')
@@ -60,7 +60,7 @@ async def app_main():
     elif message.get('event').get('type') == 'app_mention':
         # entering heavy processing
         print('Handling mention...\n')
-        await handle_mention(message)
+        handle_mention(message)
         return Response(status=200)
     else:
         print(f'Not an app mention.')
