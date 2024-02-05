@@ -14,7 +14,7 @@ app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
 
 def send_reply(value):
-    event_data = value
+    event_data = value.get_json()
     print(f'{event_data=}')
     event = event_data.get('event', {})
     channel_id = event.get('channel')
@@ -66,7 +66,7 @@ def app_main():
     elif message.get('event').get('type') == 'app_mention':
         # entering heavy processing
         print('Handling mention...\n')
-        handle_session = threading.Thread(target=handle_mention, args=message)
+        handle_session = threading.Thread(target=handle_mention, args=request)
         handle_session.start()
         return Response(status=200)
     else:
