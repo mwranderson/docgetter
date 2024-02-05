@@ -41,9 +41,9 @@ def send_reply(value):
             else:
                 client.files_upload_v2(channel=channel_id,
                         initial_comment="Here's the report:",
-                        file=f'./tmp/{result[1]}', 
+                        file=f'/tmp/{result[1]}', 
                         thread_ts = ts)
-                os.remove(f'./tmp/{result[1]}')
+                #os.remove(f'./tmp/{result[1]}')
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
