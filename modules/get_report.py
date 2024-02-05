@@ -102,8 +102,9 @@ def getreport(report):
     print(20*'-')
     print(f'{os.listdir()=}')
     print(20*'-')
-    print(f"{sftp.listdir(directory+f'/{filename}')=}", end=20*'*')
     print(f"{os.listdir('./tempdir')=}")
+    print(f"{sftp.listdir(directory+f'/{filename}')=}", end=20*'*')
+   
 
     sftp.get(directory+f'/{filename}', f'./tempdir/{filename}')
     sftp.close()
