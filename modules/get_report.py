@@ -15,7 +15,7 @@ host = 'mercury.chicagobooth.edu'
 username = 'erouhani'
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
-DF = pd.read_csv('./trans_ref.csv', index_col=0)
+DF = pd.read_csv('./trans_ref.csv')
 
 def pdf_helper(report, file):
     reader = PdfReader("/tmp/"+file)
