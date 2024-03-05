@@ -48,7 +48,10 @@ def pdf_helper(report, file):
 
     return f"{report}.pdf"
 
-def getreport(report):
+def getreport(report, local_dir = None):
+    """
+    local_dir can be used when function is used outside app
+    """
     multipdf_filename = False
     # decide which folder it's in
     sub = DF[DF.report == report]
@@ -98,7 +101,10 @@ def getreport(report):
     ssh.connect(host, username=username, pkey=key)
     sftp = ssh.open_sftp()
     # ssh connected getting file
-    sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
+    if local_dir:
+        sftp.get(f'{directory}/{filename}', f'{local_dir}/{filename}')
+    else:
+        sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
     sftp.close()
     if transcript_source == 0:
         filename = pdf_helper(report, filenames[0])
