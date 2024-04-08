@@ -5,7 +5,6 @@ import os
 from waitress import serve
 from modules.get_report import getreport
 from dotenv import load_dotenv 
-from slackeventsapi import SlackEventAdapter
 
 load_dotenv() 
 
@@ -18,7 +17,6 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
 
-slack_event_adapter = SlackEventAdapter(SIGNING_SECRET, endpoint="/slack/events")
 
 # check if a slack json request is of a given type
 def check_request_type(request, type):
@@ -108,14 +106,13 @@ def handle_message(event_data):
             else:
                 client.files_upload_v2(channel=channel_id,
                         initial_comment="Here's the report:",
-                        file=f'{os.getcwd()}/tempdir/{result[1]}', 
+                        file=f'{os.getcwd()}/tmp/{result[1]}', 
                         thread_ts = ts)
-                os.remove(f'{os.getcwd()}/tempdir/{result[1]}')
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    #serve(app, port=port)
-    app.run(debug=True)
+    serve(app, port=port)
+    #app.run(debug=True)
     
