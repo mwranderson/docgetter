@@ -11,10 +11,13 @@ load_dotenv()
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'
  
+# slack token and signing secret in .env file
 SLACK_TOKEN = os.getenv("SLACK_TOKEN")
 SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 
+# start app
 app = Flask(__name__)
+# start slack client
 client = slack.WebClient(token=SLACK_TOKEN)
 
 
