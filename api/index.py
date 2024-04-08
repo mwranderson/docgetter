@@ -2,7 +2,7 @@ from threading import Thread
 import slack_sdk as slack
 from flask import Flask, request, jsonify
 import os
-from waitress import serve
+#from waitress import serve
 from modules.get_report import getreport
 from dotenv import load_dotenv 
 
@@ -116,5 +116,5 @@ def handle_message(event_data):
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    serve(app, port=port)
     #app.run(debug=True)
+    app.run(port=port)
