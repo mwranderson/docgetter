@@ -4,8 +4,11 @@ import os
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'
 
-# check if a slack json request is of a given type
 def check_request_type(request, type):
+    '''
+    Given json request and a slack event type, 
+    return true if request is of event type: type
+    '''
     # get event
     event = request.get('event')
     if event:
@@ -16,6 +19,10 @@ def check_request_type(request, type):
             return True
 
 def handle_message(client, event_data):
+    '''
+    Given slack client and request json, handles request,
+    including communicating with backend as well as slack.
+    '''
     
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):

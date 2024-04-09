@@ -21,6 +21,10 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv')
+# for now, filter out capital IQ since it is not implemented
+DF = DF[DF.transcript_source < 3]
+
+
 
 def pdf_helper(report, file):
     ''' Old pdf files are saved as bundles. \\ 
@@ -95,8 +99,8 @@ def getreport(report, local_dir = None):
         print('Report does not exist in dataset. Verify report number and try again.')
         return [False, 'Report does not exist in dataset. Verify report number and try again.', multipdf_filename]
     
-    # if multiple different matches found with report number -- should be relatively rare
-    # this is why it requires manual intervention
+    # if multiple different matches found with report number, use manual intervention
+    # NEEDS IMPROVEMENT
     if (len(set(sub.transcript_source)) > 1) or (len(set(sub.date)) > 1):
         print(f'Too many options. Requires manual intervention. {RP_ID}.')
         return [False, f'Too many options. Requires manual intervention. {RP_ID}.', multipdf_filename]
