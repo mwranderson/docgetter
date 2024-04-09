@@ -35,12 +35,6 @@ def handle_message(client, event_data):
         ts = thread_ts
     # get app mention request text
     text = event.get('text')
-
-    print(f'{channel_id=}\n{ts=}')
-
-    # testing
-    client.chat_postMessage(channel=channel_id, thread_ts=ts, text='Testing -- I hear you.')
-    print('testing script just ran.')
     
     # confirm request syntax
     if "get report" in text and (len(text.split(' ')) == 4):
@@ -72,7 +66,7 @@ def handle_message(client, event_data):
             else:
                 client.files_upload_v2(channel=channel_id,
                         initial_comment="Here's the report:",
-                        file=f'{os.getcwd()}/tmp/{result[1]}', 
+                        file=f'/tmp/{result[1]}', 
                         thread_ts = ts)
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)

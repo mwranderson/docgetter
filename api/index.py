@@ -45,10 +45,10 @@ def verify_slack():
     
     # get unique event id
     event_id = message.get('event_id')
-
-    print(f'{event_id=}')
     
     # see if event is being processed
+    # note: this hack had to be done to avoid slack's multiple
+    # follow-up pings when ok response is not instant.
     if event_id in EVENT_ID_QUEUE:
         print(f'Found {event_id} in queue. Skipping.')
         # it's being processed
