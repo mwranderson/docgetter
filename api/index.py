@@ -16,6 +16,9 @@ RP_ID = '<@U01KCEYLA85>'
 SLACK_TOKEN = os.getenv("SLACK_TOKEN")
 SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 
+print(f"{SLACK_TOKEN=}")
+print(f"{SIGNING_SECRET=}")
+
 # start app
 app = Flask(__name__)
 # start slack client
