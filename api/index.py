@@ -18,7 +18,7 @@ app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
 
 # start event ID tracker
-event_id_queue = []
+EVENT_ID_QUEUE = []
 
 # basic get handler
 @app.route('/', methods=['GET'])
@@ -45,20 +45,26 @@ def verify_slack():
     
     # get unique event id
     event_id = message.get('event_id')
+
+    print(f'{event_id=}')
     
     # see if event is being processed
-    if event_id in event_id_queue:
+    if event_id in EVENT_ID_QUEUE:
+        print(f'Found {event_id} in queue. Skipping.')
         # it's being processed
         return {'message': 'succesful request'}, 200
     else:
+        print(f'{event_id} is new. Running it.')
         # add id to queue
-        event_id_queue.append(event_id)
+        EVENT_ID_QUEUE.append(event_id)
         # run process
         handle_message(client, message)
+        print(f'Process done. Removing {event_id} from queue.')
         # remove event_id from process
-        event_id_queue.remove(event_id)
+        EVENT_ID_QUEUE.remove(event_id)
+        # it's being processed
+        return {'message': 'succesful request'}, 200
     
-
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     #app.run(debug=True)
