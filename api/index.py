@@ -2,7 +2,6 @@ from threading import Thread
 import slack_sdk as slack
 from flask import Flask, request, jsonify
 import os
-from waitress import serve
 from modules.get_report import getreport
 from dotenv import load_dotenv 
 
@@ -121,8 +120,8 @@ def handle_message(event_data):
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
-if __name__ == "__main__":
+""" if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
     #app.run(debug=True)
-    serve(app, port=port)
-    pass
+    #serve(app, port=port)
+    pass """
