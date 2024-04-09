@@ -4,6 +4,5 @@ python-dotenv==1.0.0
 pandas==2.2.1
 paramiko==3.4.0
 pypdf ==3.17.1
-werkzeug==2.2.2
 
 
