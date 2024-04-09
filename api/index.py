@@ -30,11 +30,13 @@ def hey_slack():
 def verify_slack():
 
     # trying header retry check
-    retry_check_num = request.headers.get('x-slack-retry-num')
     retry_check_reason = request.headers.get('x-slack-retry-reason')
 
-    print(f'{retry_check_num=}')
     print(f'{retry_check_reason=}')
+    if retry_check_reason and retry_check_reason == 'http-timeout':
+        print(f'Fucking retries... getting it out of the way.')
+        # it's being processed
+        return {'message': 'succesful request'}, 200
 
 
     # convert to json
