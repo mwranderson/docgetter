@@ -1,22 +1,8 @@
-from threading import Thread
-import slack_sdk as slack
-from flask import Flask, request, jsonify
-import os
-#from waitress import serve
 from modules.get_report import getreport
-from dotenv import load_dotenv 
-
-load_dotenv() 
+import os
 
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'
- 
-SLACK_TOKEN = os.getenv("SLACK_TOKEN")
-SIGNING_SECRET = os.getenv("SIGNING_SECRET")
-
-app = Flask(__name__)
-client = slack.WebClient(token=SLACK_TOKEN)
-
 
 # check if a slack json request is of a given type
 def check_request_type(request, type):
@@ -29,46 +15,16 @@ def check_request_type(request, type):
         if event_type and event_type == type:
             return True
 
-# basic get handler
-@app.route('/', methods=['GET'])
-def hey_slack():
-    return jsonify({'message': 'Hello world!'})
-
-# handle all incoming post traffic to end point
-@app.route('/slack/events', methods=['POST'])  # type: ignore
-def verify_slack():
-    print(f'{request=}')
-    print(f'{request.headers=}')
-    print(f'{request.url=}')
-    # convert to json
-    message = request.get_json()
-
-    # return challenge if there is one
-    challenge = message.get('challenge') #type: ignore
-    if challenge:
-        # create json response
-        res = jsonify({'challenge': challenge})
-        # set content type 
-        res.headers['Content-Type'] = 'application/json'
-        # return response
-        return res
+def handle_message(client, event_data):
     
-    # if not challenge, handle request
-
-    thread = Thread(target=handle_message, kwargs={"event_data": message})
-    thread.start()
-    return {'message': 'succesful request'}, 200
-
-def handle_message(event_data):
-   
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
         print(f'Not an app_mention.')
-        # return 400 with message
-        return {'message': 'request is not of valid type. Currently only listening to app mentions.'}, 400
+        # exit
+        return
 
     # get event data
-    event = event_data.get('event', {})
+    event = event_data.get('event')
     # get channel id to respond properly
     channel_id = event.get('channel')
     # get message information to repl
@@ -79,6 +35,13 @@ def handle_message(event_data):
         ts = thread_ts
     # get app mention request text
     text = event.get('text')
+
+    print(f'{channel_id=}\n{ts=}')
+
+    # testing
+    client.chat_postMessage(channel=channel_id, thread_ts=ts, text='Testing -- I hear you.')
+    print('testing script just ran.')
+    
     # confirm request syntax
     if "get report" in text and (len(text.split(' ')) == 4):
         # get document report id
@@ -113,9 +76,3 @@ def handle_message(event_data):
                         thread_ts = ts)
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
-
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    #serve(app, port=port)
-    app.run(debug=True)
-    
