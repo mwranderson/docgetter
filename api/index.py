@@ -28,6 +28,15 @@ def hey_slack():
 # handle all incoming post traffic to end point
 @app.route('/slack/events', methods=['POST'])  # type: ignore
 def verify_slack():
+
+    # trying header retry check
+    retry_check_num = request.headers.get('x-slack-retry-num')
+    retry_check_reason = request.headers.get('x-slack-retry-reason')
+
+    print(f'{retry_check_num=}')
+    print(f'{retry_check_reason=}')
+
+
     # convert to json
     message = request.get_json()
 
