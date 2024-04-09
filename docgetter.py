@@ -2,7 +2,7 @@ from threading import Thread
 import slack_sdk as slack
 from flask import Flask, request, jsonify
 import os
-from waitress import serve
+#from waitress import serve
 from modules.get_report import getreport
 from dotenv import load_dotenv 
 
