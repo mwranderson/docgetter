@@ -13,8 +13,7 @@ load_dotenv()
 RP_ID = '<@U01KCEYLA85>'
  
 # slack token and signing secret in .env file
-#SLACK_TOKEN = os.getenv("SLACK_TOKEN")
-SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
+SLACK_TOKEN = os.getenv("SLACK_TOKEN")
 SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 
 # start app
@@ -62,8 +61,6 @@ def verify_slack():
 
 def handle_message(event_data):
     
-    print(f'{event_data=}')
-   
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
         print(f'Not an app_mention.')
@@ -82,6 +79,8 @@ def handle_message(event_data):
         ts = thread_ts
     # get app mention request text
     text = event.get('text')
+
+    print(f'{channel_id=}\n{ts=}')
 
     # testing
     client.chat_postMessage(channel=channel_id, thread_ts=ts, text='Testing -- I hear you.')
