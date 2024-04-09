@@ -38,7 +38,7 @@ def hey_slack():
 
 # handle all incoming post traffic to end point
 @app.route('/slack/events', methods=['POST'])  # type: ignore
-def verify_slack():
+async def verify_slack():
     # convert to json
     message = request.get_json()
 
@@ -52,13 +52,14 @@ def verify_slack():
         # return response
         return res
     
-    # if not challenge, handle request
+    """  # if not challenge, handle request
     thread = Thread(target=handle_message, kwargs={"event_data": message})
-    thread.start()
+    thread.start() """
+    await handle_message(message)
 
     return {'message': 'succesful request'}, 200
 
-def handle_message(event_data):
+async def handle_message(event_data):
     
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
