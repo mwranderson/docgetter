@@ -28,6 +28,8 @@ def verify_slack():
     # convert to json
     message = request.get_json()
 
+    print(f'{message=}')
+
     # return challenge if there is one
     challenge = message.get('challenge') #type: ignore
     if challenge:
