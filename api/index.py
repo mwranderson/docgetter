@@ -13,11 +13,9 @@ load_dotenv()
 RP_ID = '<@U01KCEYLA85>'
  
 # slack token and signing secret in .env file
-SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+#SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+SLACK_TOKEN = os.environ.get('SLACK_TOKEN')
 SIGNING_SECRET = os.getenv("SIGNING_SECRET")
-
-print(f"{SLACK_TOKEN=}")
-print(f"{SIGNING_SECRET=}")
 
 # start app
 app = Flask(__name__)
@@ -65,6 +63,8 @@ def verify_slack():
 def handle_message(event_data):
     
     print(f'{event_data=}')
+    print(f"{SLACK_TOKEN=}")
+    print(f"{SIGNING_SECRET=}")
 
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
