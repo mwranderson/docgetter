@@ -6,6 +6,7 @@ import os
 from modules.get_report import getreport
 from dotenv import load_dotenv 
 
+# load dotenv files
 load_dotenv() 
 
 # slack ID of RP in charge -- currently Esfandiar
@@ -19,7 +20,6 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 app = Flask(__name__)
 # start slack client
 client = slack.WebClient(token=SLACK_TOKEN)
-
 
 # check if a slack json request is of a given type
 def check_request_type(request, type):
@@ -81,6 +81,10 @@ def handle_message(event_data):
         ts = thread_ts
     # get app mention request text
     text = event.get('text')
+
+    # testing
+    client.chat_postMessage(channel=channel_id, text=f'Testing -- I hear you.', thread_ts=ts)
+
     
     # confirm request syntax
     if "get report" in text and (len(text.split(' ')) == 4):
