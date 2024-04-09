@@ -83,7 +83,7 @@ def handle_message(event_data):
     text = event.get('text')
 
     # testing
-    client.chat_postMessage(channel=channel_id, text=f'Testing -- I hear you.', thread_ts=ts)
+    client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f'Testing -- I hear you.')
     print('testing script just ran.')
     
     # confirm request syntax
