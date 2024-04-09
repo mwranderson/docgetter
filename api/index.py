@@ -84,7 +84,7 @@ def handle_message(event_data):
 
     # testing
     client.chat_postMessage(channel=channel_id, text=f'Testing -- I hear you.', thread_ts=ts)
-
+    print('testing script just ran.')
     
     # confirm request syntax
     if "get report" in text and (len(text.split(' ')) == 4):
