@@ -63,9 +63,7 @@ def verify_slack():
 def handle_message(event_data):
     
     print(f'{event_data=}')
-    print(f"{SLACK_TOKEN=}")
-    print(f"{SIGNING_SECRET=}")
-
+   
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
         print(f'Not an app_mention.')
@@ -73,7 +71,7 @@ def handle_message(event_data):
         return {'message': 'request is not of valid type. Currently only listening to app mentions.'}, 400
 
     # get event data
-    event = event_data.get('event', {})
+    event = event_data.get('event')
     # get channel id to respond properly
     channel_id = event.get('channel')
     # get message information to repl
@@ -86,7 +84,7 @@ def handle_message(event_data):
     text = event.get('text')
 
     # testing
-    client.chat_postMessage(channel=channel_id, thread_ts=ts, text=f'Testing -- I hear you.')
+    client.chat_postMessage(channel=channel_id, thread_ts=ts, text='Testing -- I hear you.')
     print('testing script just ran.')
     
     # confirm request syntax
@@ -125,6 +123,6 @@ def handle_message(event_data):
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
+    #port = int(os.environ.get('PORT', 5000))
     #app.run(debug=True)
-    app.run(port=port)
+    app.run(port=3000)
