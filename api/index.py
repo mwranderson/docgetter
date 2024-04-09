@@ -54,13 +54,15 @@ def verify_slack():
         return res
     
     # if not challenge, handle request
-
     thread = Thread(target=handle_message, kwargs={"event_data": message})
     thread.start()
+
     return {'message': 'succesful request'}, 200
 
 def handle_message(event_data):
-   
+    
+    print(f'{event_data=}')
+
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
         print(f'Not an app_mention.')
@@ -79,6 +81,7 @@ def handle_message(event_data):
         ts = thread_ts
     # get app mention request text
     text = event.get('text')
+    
     # confirm request syntax
     if "get report" in text and (len(text.split(' ')) == 4):
         # get document report id
