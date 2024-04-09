@@ -29,20 +29,29 @@ def hey_slack():
 @app.route('/slack/events', methods=['POST'])  # type: ignore
 def verify_slack():
 
-    # trying header retry check
+
+    ## this method of avoiding duplicates must be done
+    ## since free hosting services do not allow threading
+    ## if we do not do this, slack will send us the bot request
+    ## up to 4 times in a 5 minute window
+    ## slack retries if we don't respond 200 within 3 seconds of initial
+    ## request
+    
+    # trying header retry check to see if we are getting time out retries
     retry_check_reason = request.headers.get('x-slack-retry-reason')
 
-    print(f'{retry_check_reason=}')
+    # if we have a retry and it's due to http timeout, block it.
     if retry_check_reason and retry_check_reason == 'http_timeout':
-        print(f'Fucking retries... getting it out of the way.')
-        # it's being processed
-        return {'message': 'succesful request'}, 200
+        print(f'Retry request')
+        # reject retry -- try and ask for no more retries
+        res = jsonify({'message': 'task in progress'})
+        # set content type 
+        res.headers['x-slack-no-retry'] = '1'
+        return res, 418
 
 
     # convert to json
     message = request.get_json()
-
-    print(f'{message=}')
 
     # return challenge if there is one
     challenge = message.get('challenge') #type: ignore
@@ -54,30 +63,8 @@ def verify_slack():
         # return response
         return res
     
-    # get unique event id
-    event_id = message.get('event_id')
-    
-    # see if event is being processed
-    # note: this hack had to be done to avoid slack's multiple
-    # follow-up pings when ok response is not instant.
-    if event_id in EVENT_ID_QUEUE:
-        print(f'Found {event_id} in queue. Skipping.')
-        # it's being processed
-        return {'message': 'succesful request'}, 200
-    else:
-        print(f'{event_id} is new. Running it.')
-        # add id to queue
-        EVENT_ID_QUEUE.append(event_id)
-        # run process
-        handle_message(client, message)
-        print(f'Process done. Removing {event_id} from queue.')
-        # remove event_id from process
-        EVENT_ID_QUEUE.remove(event_id)
-        # it's being processed
-        return {'message': 'succesful request'}, 200
-    
-if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 5000))
-    #app.run(debug=True)
-    #serve(app, port=port)
-    pass
+    # run process
+    handle_message(client, message)
+        
+    # return 200
+    return {'message': 'succesful request'}, 200
