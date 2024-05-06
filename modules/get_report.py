@@ -20,18 +20,22 @@ username = 'erouhani'
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
-DF = pd.read_csv('./trans_ref.csv')
+DF = pd.read_csv('./trans_ref.csv', low_memory=False)
 # for now, filter out capital IQ since it is not implemented
 DF = DF[DF.transcript_source < 3]
 
 
 
-def pdf_helper(report, file):
+def pdf_helper(report, file, local_dir = None):
     ''' Old pdf files are saved as bundles. \\ 
     Given report number and address to master pdf bundle file, \\ 
-    cuts out that report and returns it as its own PDF.'''
+    cuts out that report and returns it as its own PDF.\\
+    If given local_dir, operates using local directory'''
     # open master pdf bundle
-    reader = PdfReader("/tmp/"+file)
+    if local_dir:
+        reader = PdfReader(f'{local_dir}/{file}')
+    else:
+        reader = PdfReader("/tmp/"+file)
     # get number of pages
     number_of_pages = len(reader.pages)
     # initialize variables needed cut up pages
@@ -77,8 +81,12 @@ def pdf_helper(report, file):
     for i in range(first_page-1, last_page):
         writer.add_page(reader.pages[i])
     # save pdf file to local directory
-    with open(f"/tmp/{report}.pdf", "wb") as fp:
-        writer.write(fp)
+    if local_dir:
+        with open(f"{local_dir}/{report}.pdf", "wb") as fp:
+            writer.write(fp)
+    else:
+        with open(f"/tmp/{report}.pdf", "wb") as fp:
+            writer.write(fp)
     
     # return pdf
     return f"{report}.pdf"
@@ -135,12 +143,7 @@ def getreport(report, local_dir = None):
     ## get file path -- logic follows organization on Mercury
     # refinitiv pdf case
     if transcript_source == 0:
-        if date <= datetime.date(2021, 4, 5):
-            directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20010101-20210405"
-        elif date <= datetime.date(2021, 9, 9):
-            directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20201001-20210909"
-        else:
-            directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/20210101-20220617"
+        directory = "/project/kh_mercury_1/conference_call/pdf_files/output/01_download_cc/01.1_pdf/consolidated_20010101-20220617"
     # refinitiv xml case
     elif transcript_source == 1:
         directory = f"/project/kh_mercury_1/refinitiv_univ/TRANSCRIPT/XML_Add_IDs/Archive/{year}"
@@ -180,6 +183,48 @@ def getreport(report, local_dir = None):
     if transcript_source == 0:
         # process and get filename for modified pdf file
         filename = pdf_helper(report, filenames[0])
+        # handle file not found.
+        if not filename:
+            print('Problem with pdf search. Report not found in large pdf.')
+            return [False, 'Problem with pdf search. Report not found in large pdf.', multipdf_filename]
+   
+    return [True, filename, multipdf_filename]
+
+
+
+
+def handle_download(directory, filename, transcript_source, report, local_dir = None, suppress_print = False, multipdf_filename = 'IMPLEMENT THIS'):
+    '''
+    Given directory path, filename, and report number, downloads given file \\
+    from Mercury.
+
+    If local_dir is given, file is downlaod to local_dir instead of bot's /tmp folder.
+    '''
+    # log into mercury
+    if not suppress_print:
+        print(f'Logging into mercury to get {directory}/{filename}\n')
+    ssh = pk.SSHClient()
+    ssh.load_system_host_keys()
+    ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
+    ssh.connect(host, username=username, pkey=key)
+    
+    # open mercury connection
+    sftp = ssh.open_sftp()
+    # get file
+    if local_dir:
+        # if download was local
+        sftp.get(f'{directory}/{filename}', f'{local_dir}/{filename}')
+    else:
+        # if download was via slack
+        sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
+    
+    # close mercury connection
+    sftp.close()
+
+    # process pdf batch file if necessary
+    if transcript_source == 0:
+        # process and get filename for modified pdf file
+        filename = pdf_helper(report, filename)
         # handle file not found.
         if not filename:
             print('Problem with pdf search. Report not found in large pdf.')
