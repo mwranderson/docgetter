@@ -42,11 +42,16 @@ def getreport(report, transcript_source, local_dir = ''):
         print('Report does not exist in dataset. Verify report number and try again.')
         return [False, 'Report does not exist in dataset. Verify report number and try again.', multipdf_filename]
     
-    # if multiple different matches found with report number, use manual intervention
-    # NEEDS IMPROVEMENT
+    # if multiple different matches found with report number
     if (len(set(sub.transcript_source)) > 1) or (len(set(sub.date)) > 1):
-        print(f'Too many options. Requires manual intervention. {RP_ID}.')
-        return [False, f'Too many options. Requires manual intervention. {RP_ID}.', multipdf_filename]
+        if transcript_source > -1:
+            print(f'Too many options. Requires manual intervention. {RP_ID}.')
+            return [False, f'Too many options. Requires manual intervention. {RP_ID}.', multipdf_filename]
+        else:
+            print(f'Multiple transcripts have report id = {report}.\n\
+                  Please try again, this time indicating a transcript source.')
+            return [False, f'Too many options. Requires manual intervention. {RP_ID}.', multipdf_filename]
+
     
     # get filenames of report
     filenames = sub.file_name.to_list()

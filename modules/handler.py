@@ -7,8 +7,8 @@ RP_ID = '<@U01KCEYLA85>'
 # accepted transcript source inputs and their mappings
 ts_dict = {'0': 0, 'ref-pdf': 0, 'ref_pdf': 0, 'refpdf': 0, 
            '1': 1, 'ref-xml': 1, 'ref_xml': 1, 'refxml': 1, 
-           '2': 2, 
-           '3': 3}
+           '2': 2, 'fs': 2, 'factset': 2,
+           '3': 3, 'ciq': 3, 'capitaliq': 3}
 
 
 def check_request_type(request, type):
