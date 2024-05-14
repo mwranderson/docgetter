@@ -17,7 +17,6 @@ SIGNING_SECRET = os.getenv("SIGNING_SECRET")
 app = Flask(__name__)
 client = slack.WebClient(token=SLACK_TOKEN)
 
-
 # check if a slack json request is of a given type
 def check_request_type(request, type):
     # get event

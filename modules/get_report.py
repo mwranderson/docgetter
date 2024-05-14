@@ -20,10 +20,9 @@ username = 'erouhani'
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
-DF = pd.read_csv('./trans_ref.csv', low_memory=False)
+DF = pd.read_csv('./trans_ref.csv', compression='gzip')
 # for now, filter out capital IQ since it is not implemented
-DF = DF[DF.transcript_source < 3]
-
+# DF = DF[DF.transcript_source < 3]
 
 
 def pdf_helper(report, file, local_dir = None):
@@ -152,9 +151,7 @@ def getreport(report, local_dir = None):
         directory = f"/project/FactSet/fdsloader/unzipped_data/tr_history_{year}"
     # capital IQ case
     elif transcript_source == 3:
-        # IMPLEMENT CAPITALIQ LOGIC
-        print(f'CapitalIQ retrieval not yet implemented. Requires manual intervention. {RP_ID}.')
-        return [False, f'CapitalIQ retrieval not yet implemented. Requires manual intervention. {RP_ID}.', multipdf_filename]
+        directory = "/project/kh_mercury_1/conference_call/ciq/output/transcript_data/{year}_ciq_trans_cleaned.csv"
     else:
         print(f'Invalid transcript source. Requires manual intervention. {RP_ID}.')
         return [False, f'Invalid transcript source. Requires manual intervention. {RP_ID}.', multipdf_filename]
@@ -169,16 +166,27 @@ def getreport(report, local_dir = None):
     
     # open mercury connection
     sftp = ssh.open_sftp()
-    # get file
-    if local_dir:
-        # if download was local
-        sftp.get(f'{directory}/{filename}', f'{local_dir}/{filename}')
+
+    # capital iq get case
+    if transcript_source == 3:
+        # call helper
+        pass
     else:
-        # if download was via slack
-        sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
+        # get file
+        if local_dir:
+            # if download was local
+            sftp.get(f'{directory}/{filename}', f'{local_dir}/{filename}')
+        else:
+            # if download was via slack
+            sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
     # close mercury connection
     sftp.close()
 
+    # capital iq process case
+    if transcript_source == 3:
+        # do ciq helper
+        filename = 'filename'
+        pass
     # process pdf batch file if necessary
     if transcript_source == 0:
         # process and get filename for modified pdf file
