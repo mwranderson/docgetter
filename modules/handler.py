@@ -57,23 +57,23 @@ def handle_message(client, event_data):
             client.chat_postMessage(channel=channel_id, text=f'Getting report {report_id}...', thread_ts=ts)
             # try and get report 
             try:
-                result = getreport(report_id)
+                success, filename, mutilpdf_filename = getreport(report_id)
             except Exception as e:
                 # return error reason
                 client.chat_postMessage(channel=channel_id, thread_ts = ts, text=f'Report not found due to {e}\nRequires manual intervention {RP_ID}.')
                 return
             
             # handle if there were multiple names found -- occurs due to oddities in old pdf downloads
-            if result[2]:
-                client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf files. \nFile: "{result[2]}" chosen at random.', thread_ts=ts)
+            if mutilpdf_filename:
+                client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf files. \nFile: "{mutilpdf_filename}" chosen at random.', thread_ts=ts)
             # handle some kind of error
-            if not result[0]: 
-                client.chat_postMessage(channel=channel_id, text=str(result[1]), thread_ts=ts)
+            if not success: 
+                client.chat_postMessage(channel=channel_id, text=str(filename), thread_ts=ts)
             # all went well -- upload files from tempdir and delete it
             else:
                 client.files_upload_v2(channel=channel_id,
                         initial_comment="Here's the report:",
-                        file=f'/tmp/{result[1]}', 
+                        file=f'/tmp/{filename}', 
                         thread_ts = ts)
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)

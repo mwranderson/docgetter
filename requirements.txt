@@ -3,6 +3,7 @@ flask[async]==3.0.3
 python-dotenv==1.0.0
 pandas==2.2.1
 paramiko==3.4.0
-pypdf ==3.17.1
+pypdf==3.17.1
+fpdf==1.7.2
 
 

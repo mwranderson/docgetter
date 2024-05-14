@@ -5,18 +5,6 @@ import os
 from modules.handler import handle_message
 from dotenv import load_dotenv 
 
-
-'''
-Note on logic in handler and get_report:
-With the growth of the dataset and especially addition of capital IQ data, 
-conflicting report numbers are much less rare. 
-Implement a transcript_source feeding process -- perhaps
-accepting fs_{report} or ciq_{report} etc. will suffice.
-
-Alternatively, could make it an input but that might be too obnoxious.
-'''
-
-
 # load dotenv files
 load_dotenv() 
  

@@ -1,7 +1,7 @@
 import pandas as pd
 import paramiko as pk
+import modules.pdf_mods as pdfm
 import datetime
-from pypdf import PdfReader, PdfWriter
 import os
 import warnings
 from dotenv import load_dotenv 
@@ -21,76 +21,8 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
-# for now, filter out capital IQ since it is not implemented
-# DF = DF[DF.transcript_source < 3]
 
-
-def pdf_helper(report, file, local_dir = None):
-    ''' Old pdf files are saved as bundles. \\ 
-    Given report number and address to master pdf bundle file, \\ 
-    cuts out that report and returns it as its own PDF.\\
-    If given local_dir, operates using local directory'''
-    # open master pdf bundle
-    if local_dir:
-        reader = PdfReader(f'{local_dir}/{file}')
-    else:
-        reader = PdfReader("/tmp/"+file)
-    # get number of pages
-    number_of_pages = len(reader.pages)
-    # initialize variables needed cut up pages
-    break_point = False
-    match = False
-    page_range = ''
-    # go through pages
-    for i in range(number_of_pages):
-        # exit condition
-        if break_point:
-            break
-        # read page
-        page = reader.pages[i]
-        # get page text
-        text = page.extract_text()
-        # get page lines
-        lines = text.split('\n')
-        # go through lines
-        for j, line in enumerate(lines):
-            # if report number is found, get page range of report
-            # this is typically in the batch pdf's table of contents
-            if str(report) in line:
-                # line where report number is found
-                match = line
-                # get that line and the one after 
-                # -- page range takes up two lines
-                page_range = lines[j+1]
-                # set exit condition
-                break_point = True
-                break
-    # if no match found, exit
-    if not match:
-        return False
-    
-    # get first page of report
-    first_page = int(page_range.split(' ')[0])
-    # get last page of report
-    last_page = int(page_range.split(' ')[-1])
-
-    # set up pdf object
-    writer = PdfWriter()
-    # add pages to pdf object
-    for i in range(first_page-1, last_page):
-        writer.add_page(reader.pages[i])
-    # save pdf file to local directory
-    if local_dir:
-        with open(f"{local_dir}/{report}.pdf", "wb") as fp:
-            writer.write(fp)
-    else:
-        with open(f"/tmp/{report}.pdf", "wb") as fp:
-            writer.write(fp)
-    
-    # return pdf
-    return f"{report}.pdf"
-
-def getreport(report, local_dir = None):
+def getreport(report, transcript_source = -1, local_dir = None):
     """
     Given report number, finds it in mercury and saves it to temporary directory.\\
     This function can be used outside the context of the app, in which case \\
@@ -98,8 +30,12 @@ def getreport(report, local_dir = None):
     """
     # initialize batch pdf file variable
     multipdf_filename = False
-    # decide which folder it's in using dataset
-    sub = DF[DF.report == report]
+    
+    # check if transcript source was provided and subset dataset accordingly
+    if transcript_source > -1:
+        sub = DF[(DF.report == report) & (DF.transcript_source == transcript_source)].drop_duplicates()
+    else:
+        sub = DF[DF.report == report].drop_duplicates()
     
     # if not found in dataset
     if not sub.shape[0]:
@@ -151,11 +87,41 @@ def getreport(report, local_dir = None):
         directory = f"/project/FactSet/fdsloader/unzipped_data/tr_history_{year}"
     # capital IQ case
     elif transcript_source == 3:
-        directory = "/project/kh_mercury_1/conference_call/ciq/output/transcript_data/{year}_ciq_trans_cleaned.csv"
+        directory = f"/project/kh_mercury_1/conference_call/ciq/output/transcript_data/{year}_ciq_trans_cleaned.csv"
     else:
         print(f'Invalid transcript source. Requires manual intervention. {RP_ID}.')
         return [False, f'Invalid transcript source. Requires manual intervention. {RP_ID}.', multipdf_filename]
     
+
+    # download file
+    filename = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source)
+
+    if not filename:
+        print('Problem with Capital IQ search. Requires manual intervention. {RP_ID}.')
+        return [False, 'Problem with Capital IQ search. Requires manual intervention. {RP_ID}']
+
+    # process pdf batch file if necessary
+    if transcript_source == 0:
+        # process and get filename for modified pdf file
+        filename = pdfm.pdf_splitter(report, filenames[0], local_dir)
+        # handle file not found.
+        if not filename:
+            print('Problem with pdf search. Report not found in large pdf.')
+            return [False, 'Problem with pdf search. Report not found in large pdf.', multipdf_filename]
+   
+    return [True, filename, multipdf_filename]
+
+def handle_download(
+        directory: str, 
+        filename: str, 
+        transcript_source: int,
+        local_dir: str | None = None):
+    '''
+    Given directory path, filename, and transcript_source, downloads given file \\
+    from Mercury.
+
+    If local_dir is given, file is downlaod to local_dir instead of bot's /tmp folder.
+    '''
     ## download file from mercury
     # log into mercury
     print(f'Logging into mercury to get {directory}/{filename}\n')
@@ -169,8 +135,41 @@ def getreport(report, local_dir = None):
 
     # capital iq get case
     if transcript_source == 3:
-        # call helper
-        pass
+        # get report from file name
+        report = int(filename.split('_')[-1])
+
+        # read file iteratively for memory performance purposes
+        chunksize = 100
+
+        # initialize row
+        row = None
+        # open file and iterate through it to find needed row
+        with sftp.open(directory) as f:
+            # prefetching speeds up reading while not maximally increasing
+            # memory use
+            f.prefetch()
+            # read in csv file with iterator
+            ciq_options = pd.read_csv(f, chunksize=chunksize) #type: ignore
+            
+            # look for relevant report
+            for chunk in ciq_options:
+                if report in chunk.transcriptid.to_list():
+                    # get report text body
+                    row = chunk[chunk.transcriptid == report]
+                    break
+        
+        # return false if row not found
+        if not isinstance(row, pd.DataFrame):
+            return False
+
+        # get needed vars from row
+        body = row.text.values[0]
+        event_title = row.event_title.values[0]
+        event_date = row.event_date.values[0]
+        
+        # turn it into pdf or txt file and save in local dir
+        return pdfm.pdf_creator(body=body, filename=filename+'.pdf', event_title=event_title, event_date=event_date, local_dir=local_dir)
+        
     else:
         # get file
         if local_dir:
@@ -182,60 +181,4 @@ def getreport(report, local_dir = None):
     # close mercury connection
     sftp.close()
 
-    # capital iq process case
-    if transcript_source == 3:
-        # do ciq helper
-        filename = 'filename'
-        pass
-    # process pdf batch file if necessary
-    if transcript_source == 0:
-        # process and get filename for modified pdf file
-        filename = pdf_helper(report, filenames[0])
-        # handle file not found.
-        if not filename:
-            print('Problem with pdf search. Report not found in large pdf.')
-            return [False, 'Problem with pdf search. Report not found in large pdf.', multipdf_filename]
-   
-    return [True, filename, multipdf_filename]
-
-
-
-
-def handle_download(directory, filename, transcript_source, report, local_dir = None, suppress_print = False, multipdf_filename = 'IMPLEMENT THIS'):
-    '''
-    Given directory path, filename, and report number, downloads given file \\
-    from Mercury.
-
-    If local_dir is given, file is downlaod to local_dir instead of bot's /tmp folder.
-    '''
-    # log into mercury
-    if not suppress_print:
-        print(f'Logging into mercury to get {directory}/{filename}\n')
-    ssh = pk.SSHClient()
-    ssh.load_system_host_keys()
-    ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
-    ssh.connect(host, username=username, pkey=key)
-    
-    # open mercury connection
-    sftp = ssh.open_sftp()
-    # get file
-    if local_dir:
-        # if download was local
-        sftp.get(f'{directory}/{filename}', f'{local_dir}/{filename}')
-    else:
-        # if download was via slack
-        sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
-    
-    # close mercury connection
-    sftp.close()
-
-    # process pdf batch file if necessary
-    if transcript_source == 0:
-        # process and get filename for modified pdf file
-        filename = pdf_helper(report, filename)
-        # handle file not found.
-        if not filename:
-            print('Problem with pdf search. Report not found in large pdf.')
-            return [False, 'Problem with pdf search. Report not found in large pdf.', multipdf_filename]
-   
-    return [True, filename, multipdf_filename]
+    return filename
