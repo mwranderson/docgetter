@@ -32,7 +32,7 @@ class PDF(FPDF):
         self.cell(0, 10, str(self.page_no()), align='C')
 
 
-def pdf_splitter(report, file, local_dir = None):
+def pdf_splitter(report, file, local_dir = ''):
     ''' Old pdf files are saved as bundles. \\ 
     Given report number and address to master pdf bundle file, \\ 
     cuts out that report and returns it as its own PDF.\\
