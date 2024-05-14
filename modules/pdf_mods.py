@@ -103,7 +103,7 @@ def pdf_creator(
         filename : str, 
         event_title: str, 
         event_date: str, 
-        local_dir: str | None):
+        local_dir: str):
     ''' 
     Given transcript body, event_title and event_date, 
     Creates and saves a pdf presenting transcript information. \
