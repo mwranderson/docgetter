@@ -2,7 +2,7 @@ from threading import Thread
 import slack_sdk as slack
 from flask import Flask, request, jsonify
 import os
-from modules.handler import handle_message
+from modules.handler import handle_request
 from dotenv import load_dotenv 
 
 # load dotenv files
@@ -64,7 +64,7 @@ def verify_slack():
         return res
     
     # run process
-    handle_message(client, message)
+    handle_request(client, message)
         
     # return 200
     return {'message': 'succesful request'}, 200
