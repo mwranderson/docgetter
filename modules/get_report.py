@@ -2,6 +2,7 @@ import pandas as pd
 import paramiko as pk
 import modules.pdf_mods as pdfm
 import datetime
+import time
 import os
 import warnings
 from dotenv import load_dotenv 
@@ -28,6 +29,8 @@ def getreport(report, transcript_source, local_dir = ''):
     This function can be used outside the context of the app, in which case \\
     local_dir determines the output folder for saving report files. 
     """
+    st_time = time.time()
+    
     # initialize batch pdf file variable
     multipdf_filename = False
     
@@ -99,7 +102,9 @@ def getreport(report, transcript_source, local_dir = ''):
     
 
     # download file
-    filename = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source)
+    filename = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source, st_time=st_time)
+
+    print(f'Creating and saving pdf is at {st_time-time.time()} seconds.')
 
     if not filename:
         print('Problem with Capital IQ search. Requires manual intervention. {RP_ID}.')
@@ -120,7 +125,8 @@ def handle_download(
         directory: str, 
         filename: str, 
         transcript_source: int,
-        local_dir: str):
+        local_dir: str,
+        st_time: float = 0):
     '''
     Given directory path, filename, and transcript_source, downloads given file \\
     from Mercury.
@@ -130,6 +136,8 @@ def handle_download(
     ## download file from mercury
     # log into mercury
     print(f'Logging into mercury to get {directory}/{filename}\n')
+    print(f'This took {st_time-time.time()} seconds.')
+
     ssh = pk.SSHClient()
     ssh.load_system_host_keys()
     ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
@@ -144,7 +152,7 @@ def handle_download(
         report = int(filename.split('_')[-1])
 
         # read file iteratively for memory performance purposes
-        chunksize = 100
+        chunksize = 1000
 
         # initialize row
         row = None
@@ -162,6 +170,8 @@ def handle_download(
                     # get report text body
                     row = chunk[chunk.transcriptid == report]
                     break
+        
+        print(f'Finding ciq row is now at {st_time-time.time()} seconds.')
         
         # return false if row not found
         if not isinstance(row, pd.DataFrame):
