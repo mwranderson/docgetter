@@ -50,8 +50,7 @@ def getreport(report, transcript_source, local_dir = ''):
         else:
             print(f'Multiple transcripts have report id = {report}.\n\
                   Please try again, this time indicating a transcript source.')
-            return [False, f'Multiple transcripts have report id = {report}.\n\
-                  Please try again, this time indicating a transcript source.', multipdf_filename]
+            return [False, f'Multiple transcripts have report id = {report}. Please try again, this time indicating a transcript source.', multipdf_filename]
 
     
     # get filenames of report
