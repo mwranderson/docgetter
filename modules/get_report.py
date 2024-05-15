@@ -136,7 +136,7 @@ def handle_download(
     ## download file from mercury
     # log into mercury
     print(f'Logging into mercury to get {directory}/{filename}\n')
-    print(f'This took {st_time-time.time()} seconds.')
+    print(f'This took {time.time()-st_time} seconds.')
 
     ssh = pk.SSHClient()
     ssh.load_system_host_keys()
@@ -166,12 +166,13 @@ def handle_download(
             
             # look for relevant report
             for chunk in ciq_options:
+                print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
                 if report in chunk.transcriptid.to_list():
                     # get report text body
                     row = chunk[chunk.transcriptid == report]
                     break
         
-        print(f'Finding ciq row is now at {st_time-time.time()} seconds.')
+        print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
         
         # return false if row not found
         if not isinstance(row, pd.DataFrame):
