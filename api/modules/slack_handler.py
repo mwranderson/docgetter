@@ -109,7 +109,7 @@ def handle_get_report(client, text, channel_id, ts):
     # send processing message
     client.chat_postMessage(channel=channel_id, text=f'Looking for report {report_id}...', thread_ts=ts)
     
-    # get report id info
+    # get report info
     response, rest = get_report_info(report_id, transcript_source)
 
     # possible outcomes: 
@@ -155,10 +155,11 @@ def handle_get_report(client, text, channel_id, ts):
 
     # got report successfully
     if success:
+        filename, multipdf_filename = rest
         client.files_upload_v2(channel=channel_id,
                 initial_comment="Here's the report:",
-                file=f'/tmp/{rest}', 
-                thread_ts = ts)   
+                file=f'/tmp/{filename}', 
+                thread_ts = ts)
     else:
         # handle error cases
         # if pdf not found in multifile pdf

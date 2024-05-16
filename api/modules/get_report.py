@@ -144,6 +144,7 @@ def getreport_local(report: int, transcript_source: int, local_dir: str):
     finds and saves file into local_dir
     """
 
+    # get report info
     success, rest = get_report_info(report, transcript_source)
 
     if success:
