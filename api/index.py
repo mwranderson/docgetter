@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import os
 print(f'In index: cwd: {os.getcwd()}')
 from .modules.slack_handler import handle_request
+print('made it past index module import')
 from dotenv import load_dotenv 
 
 # load dotenv files

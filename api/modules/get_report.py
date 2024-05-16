@@ -3,6 +3,7 @@ import paramiko as pk
 import os
 print(f'In get_report: cwd: {os.getcwd()}')
 import modules.pdf_mods as pdfm
+print('made it past get_report module import -- this one has no dot.')
 import time
 import warnings
 from dotenv import load_dotenv 
