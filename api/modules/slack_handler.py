@@ -60,6 +60,67 @@ def handle_request(client, event_data):
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)   
 
+def multi_choice_block_builder(report, options):
+    '''
+    Given 2-D array of transcript choices from dataframe, returns slack choice block
+    '''
+    # construct divider
+    divider = { "type": "divider" }
+
+    # construct top message
+    top_message = f"Multiple transcrips found in database with report = {report}.\n\n *Please select the one you are looking for:*"
+    # construct top part
+    top_part = {
+        'type': 'section', 
+        'text': { 'type': 'mrkdown',
+                 'text': top_message}}
+
+    # init choices list
+    choices_list = []
+    # get num choices
+    num_choices = len(options)
+
+    # get choices
+    for i in range(num_choices):
+        choice = {
+            'text': {
+                'type': 'plain_text',
+                'text': f'Row number {i+1}'
+            },
+            'value': f'value-{i}'
+        }
+
+        choices_list.append(choice)
+
+    # construct choice part
+    choice_buttons = {'type': 'actions', 
+                      'elements': [
+                          {
+                            'type': 'radio_buttons',
+                            'options': choices_list,
+					        "action_id": "actionId-0"
+                          }]}
+
+    table_text = ''
+
+    # create table text
+    for option in options:
+        table_text += f'{option[0]} | {option[1]} | {option[2]} | {option[3]}\n'
+
+    # build choice table
+    choice_table = {'type': 'context', 
+                    'elements': [
+                        {
+                            'type': 'mrkdwn',
+                            'text': ' report | date | transcript_source | file_name\n' + table_text
+                        }
+                    ]}
+
+
+    blocks = [top_part, divider, choice_buttons, divider, choice_table]
+		
+    return blocks
+
 
 def handle_get_report(client, text, channel_id, ts):
     '''
@@ -131,7 +192,7 @@ def handle_get_report(client, text, channel_id, ts):
             client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
         else:
             # give transcript source choices if not
-            client.chat_postMessage(channel=channel_id, text='Multi choice! Figure out input bruv.', thread_ts=ts)
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, blocks=multi_choice_block_builder(report_id, rest))
         return
     else:
         # get necessary information
