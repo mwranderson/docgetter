@@ -72,7 +72,7 @@ def multi_choice_block_builder(report, options):
     # construct top part
     top_part = {
         'type': 'section', 
-        'text': { 'type': 'mrkdown',
+        'text': { 'type': 'mrkdwn',
                  'text': top_message}}
 
     # init choices list
