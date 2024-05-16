@@ -1,19 +1,11 @@
 {
-    "rewrites": [
-      {
-        "source": "/(.*)",
-        "destination": "api/index.py"
-      }
-    ],
-    "functions": {
-      "app/api/*": {
-        "maxDuration": 60 
-      },
-      "app/modules/*": {
-        "maxDuration": 60 
-      },
-      "runtime": "python3.9",
-      "src": "api/index.py",
-      "use": "@vercel/python"
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
+  "functions": {
+    "app/api/*": {
+      "maxDuration": 60 
+    },
+    "app/modules/*": {
+      "maxDuration": 60 
     }
+  }
   }
