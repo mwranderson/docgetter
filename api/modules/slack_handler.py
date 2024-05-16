@@ -1,5 +1,6 @@
-from modules.get_report import getreport
 import os
+print(f'In slack_handler: cwd: {os.getcwd()}')
+from modules.get_report import getreport
 
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'

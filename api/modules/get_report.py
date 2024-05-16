@@ -1,8 +1,9 @@
 import pandas as pd
 import paramiko as pk
+import os
+print(f'In get_report: cwd: {os.getcwd()}')
 import modules.pdf_mods as pdfm
 import time
-import os
 import warnings
 from dotenv import load_dotenv 
 from io import StringIO
