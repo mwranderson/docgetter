@@ -22,14 +22,8 @@ username = 'erouhani'
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
-DF = pd.read_csv(join(dir, '..', '..','trans_ref.csv'), compression='gzip')
-print('relative try one')
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
 print('relative try two')
-DF = pd.read_csv('/trans_ref.csv', compression='gzip')
-print('absolute try two')
-
-
 
 def getreport(report, transcript_source, local_dir = ''):
     """
