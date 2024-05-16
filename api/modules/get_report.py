@@ -211,7 +211,7 @@ def handle_download(
         report = int(filename.split('_')[-1])
 
         # read file iteratively for memory performance purposes
-        chunksize = 1000
+        chunksize = 500
 
         # initialize row
         row = None

@@ -139,7 +139,7 @@ def handle_get_report(client, text, channel_id, ts):
     client.chat_postMessage(channel=channel_id, text=f'Found report {report_id}. Downloading...', thread_ts=ts)
     # send capital IQ warning
     if transcript_source == 3:
-        client.chat_postMessage(channel=channel_id, text=f'Warning: You have requested a Capital IQ transcript. Due to the strucutre of our dataset, this request will take longer, and might fail.', thread_ts=ts)
+        client.chat_postMessage(channel=channel_id, text=f'Warning: You have requested a Capital IQ transcript. Due to the strucutre of our dataset, this request can take up to a minute. If you have not received the file after 1 minute, the request has failed and required manual retrieval.', thread_ts=ts)
     # send random pdf choice warning
     if multipdf_filename:
         client.chat_postMessage(channel=channel_id, text=f'Warning: Report exists in multiple pdf files. \nFile: "{multipdf_filename}" chosen at random.', thread_ts=ts)
