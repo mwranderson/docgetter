@@ -15,15 +15,22 @@ warnings.simplefilter(action='ignore', category=UnicodeWarning)
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'
 
-#ssh into mercury using paramiko
+# ssh into mercury using paramiko
 host = 'mercury.chicagobooth.edu'
 username = 'erouhani'
+# increasing paramiko speed
+class FastTransport(pk.Transport):
+    def __init__(self, sock):
+        super(FastTransport, self).__init__(sock)
+        self.window_size = 2147483647
+        self.packetizer.REKEY_BYTES = pow(2, 40)
+        self.packetizer.REKEY_PACKETS = pow(2, 40)
+
 ## add .env file to main folder that contains your mercury sshkey
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
-print('relative try two')
 
 def getreport(report, transcript_source, local_dir = ''):
     """
@@ -106,8 +113,6 @@ def getreport(report, transcript_source, local_dir = ''):
     # download file
     filename = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source, st_time=st_time)
 
-    print(f'Creating and saving pdf is at {st_time-time.time()} seconds.')
-
     if not filename:
         print('Problem with Capital IQ search. Requires manual intervention. {RP_ID}.')
         return [False, 'Problem with Capital IQ search. Requires manual intervention. {RP_ID}']
@@ -140,14 +145,19 @@ def handle_download(
     print(f'Logging into mercury to get {directory}/{filename}\n')
     print(f'This took {time.time()-st_time} seconds.')
 
-    ssh = pk.SSHClient()
-    ssh.load_system_host_keys()
-    ssh.set_missing_host_key_policy(pk.AutoAddPolicy())
-    ssh.connect(host, username=username, pkey=key)
+    # set up connection via fast transport
+    ssh_conn = FastTransport((host, 22))
+    ssh_conn.connect(username=username, pkey=key)
     
     # open mercury connection
-    sftp = ssh.open_sftp()
+    sftp = pk.SFTPClient.from_transport(ssh_conn)
 
+    # exit if sftp not established
+    if not sftp:
+        print('Sftp connection to Mercury not established. Exiting.')
+        
+        return
+    
     # initialize row finding bool
     found = False
 
@@ -179,9 +189,9 @@ def handle_download(
         
         print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
         
-        # return false if row not found
+        # return if row not found
         if not found:
-            return False
+            return
 
         # get needed vars from row
         body = row.text.values[0] #type:ignore
