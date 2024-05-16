@@ -187,7 +187,7 @@ def handle_get_report(client, text, channel_id, ts):
     
     # react to different responses
     if not response:
-        if len(rest) > 1:
+        if len(rest) > 10:
             # send error message if error case
             client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
         else:
