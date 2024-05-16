@@ -165,14 +165,14 @@ def handle_download(
         report = int(filename.split('_')[-1])
 
         # read file iteratively for memory performance purposes
-        chunksize = 5000
+        chunksize = 1000
 
         # initialize row
         row = None
         # open file and iterate through it to find needed row
         with sftp.open(directory) as f:
             # read in csv file with iterator
-            ciq_options = pd.read_csv(f, chunksize=chunksize) #type: ignore
+            ciq_options = pd.read_csv(f, usecols=['transcriptid', 'event_title', 'event_date', 'text'], chunksize=chunksize) #type: ignore
             # look for relevant report
             for chunk in ciq_options:
                 print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
