@@ -1,13 +1,13 @@
 import pandas as pd
 import paramiko as pk
 import os
-print(f'In get_report: cwd: {os.getcwd()}')
 from .pdf_mods import pdf_creator, pdf_splitter
-print('made it past get_report module import')
 import time
 import warnings
 from dotenv import load_dotenv 
 from io import StringIO
+from os.path import dirname, abspath, join
+dir = dirname(abspath(__file__))
 
 load_dotenv() 
 warnings.simplefilter(action='ignore', category=UnicodeWarning)
@@ -22,7 +22,14 @@ username = 'erouhani'
 key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 
 # dataset of all reports with column set up to download from mercury directory structure
-DF = pd.read_csv('../../trans_ref.csv', compression='gzip')
+DF = pd.read_csv(join(dir, '..', '..','trans_ref.csv'), compression='gzip')
+print('relative try one')
+DF = pd.read_csv('./trans_ref.csv', compression='gzip')
+print('relative try two')
+DF = pd.read_csv('/trans_ref.csv', compression='gzip')
+print('absolute try two')
+
+
 
 def getreport(report, transcript_source, local_dir = ''):
     """

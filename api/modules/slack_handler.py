@@ -1,8 +1,4 @@
-import os
-print(f'In slack_handler: cwd: {os.getcwd()}')
 from .get_report import getreport
-print('made it past handler module import')
-
 
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'

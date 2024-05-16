@@ -1,7 +1,5 @@
 from pypdf import PdfReader, PdfWriter
 from fpdf import FPDF
-import os
-print(f'In pdf_mods: cwd: {os.getcwd()}')
 
 # FPDF subclass with header and footer modifications
 class PDF(FPDF):
