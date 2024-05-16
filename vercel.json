@@ -1,11 +1,4 @@
 {
-    "builds": [
-      {
-        "src": "api/index.py",
-        "use": "@vercel/python",
-        "config": { "runtime": "python3.9" }
-      }
-    ],
     "rewrites": [
       {
         "source": "/(.*)",
@@ -18,6 +11,9 @@
       },
       "app/modules/*": {
         "maxDuration": 60 
-      }
+      },
+      "runtime": "python3.9",
+      "src": "api/index.py",
+      "use": "@vercel/python"
     }
   }
