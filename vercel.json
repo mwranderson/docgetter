@@ -11,5 +11,13 @@
         "source": "/(.*)",
         "destination": "api/index.py"
       }
-    ]
+    ],
+    "functions": {
+      "app/api/*": {
+        "maxDuration": 60 
+      },
+      "app/modules/*": {
+        "maxDuration": 60 
+      }
+    }
   }

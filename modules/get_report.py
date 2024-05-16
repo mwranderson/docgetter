@@ -1,7 +1,6 @@
 import pandas as pd
 import paramiko as pk
 import modules.pdf_mods as pdfm
-import datetime
 import time
 import os
 import warnings
@@ -146,6 +145,9 @@ def handle_download(
     # open mercury connection
     sftp = ssh.open_sftp()
 
+    # initialize row finding bool
+    found = False
+
     # capital iq get case
     if transcript_source == 3:
         # get report from file name
@@ -158,30 +160,30 @@ def handle_download(
         row = None
         # open file and iterate through it to find needed row
         with sftp.open(directory) as f:
-            # prefetching speeds up reading while not maximally increasing
-            # memory use
+            # prefetch to improve performance
             f.prefetch()
             # read in csv file with iterator
             ciq_options = pd.read_csv(f, chunksize=chunksize) #type: ignore
-            
             # look for relevant report
             for chunk in ciq_options:
                 print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
-                if report in chunk.transcriptid.to_list():
-                    # get report text body
-                    row = chunk[chunk.transcriptid == report]
+                # get report text body
+                row = chunk[chunk.transcriptid == report]
+                # exit when report is found
+                if row.shape[0]:
+                    found = True
                     break
         
         print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
         
         # return false if row not found
-        if not isinstance(row, pd.DataFrame):
+        if not found:
             return False
 
         # get needed vars from row
-        body = row.text.values[0]
-        event_title = row.event_title.values[0]
-        event_date = row.event_date.values[0]
+        body = row.text.values[0] #type:ignore
+        event_title = row.event_title.values[0] #type:ignore
+        event_date = row.event_date.values[0] #type:ignore
         
         # turn it into pdf or txt file and save in local dir
         return pdfm.pdf_creator(body=body, filename=filename+'.pdf', event_title=event_title, event_date=event_date, local_dir=local_dir)
