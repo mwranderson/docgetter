@@ -157,7 +157,7 @@ def handle_get_report(client, text, channel_id, ts):
     if success:
         client.files_upload_v2(channel=channel_id,
                 initial_comment="Here's the report:",
-                file=f'/tmp/{filename}', 
+                file=f'/tmp/{rest}', 
                 thread_ts = ts)   
     else:
         # handle error cases
