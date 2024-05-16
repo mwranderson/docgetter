@@ -3,9 +3,6 @@
   "functions": {
     "api/*.py": {
       "maxDuration": 60
-    },
-    "modules/*.py": {
-      "maxDuration": 60
     }
   }
 }
