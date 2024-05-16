@@ -143,7 +143,6 @@ def handle_download(
     ## download file from mercury
     # log into mercury
     print(f'Logging into mercury to get {directory}/{filename}\n')
-    print(f'This took {time.time()-st_time} seconds.')
 
     # set up connection via fast transport
     ssh_conn = FastTransport((host, 22))
@@ -155,7 +154,6 @@ def handle_download(
     # exit if sftp not established
     if not sftp:
         print('Sftp connection to Mercury not established. Exiting.')
-        
         return
     
     # initialize row finding bool
@@ -174,7 +172,7 @@ def handle_download(
         # open file and iterate through it to find needed row
         with sftp.open(directory) as f:
             # prefetch to improve performance
-            f.prefetch()
+            #f.prefetch()
             # read in csv file with iterator
             ciq_options = pd.read_csv(f, chunksize=chunksize) #type: ignore
             # look for relevant report
@@ -187,7 +185,7 @@ def handle_download(
                     found = True
                     break
         
-        print(f'Finding ciq row is now at {time.time()-st_time} seconds.')
+        print(f'Finding ciq row done at {time.time()-st_time} seconds.')
         
         # return if row not found
         if not found:
