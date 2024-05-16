@@ -1,13 +1,11 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index.py" }],
   "functions": {
     "api/*.py": {
-      "maxDuration": 60,
-      "runtime": "python3.9" 
+      "maxDuration": 60
     },
     "modules/*.py": {
-      "maxDuration": 60,
-      "runtime": "python3.9" 
+      "maxDuration": 60
     }
   }
 }
