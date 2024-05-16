@@ -2,7 +2,7 @@ import pandas as pd
 import paramiko as pk
 import os
 print(f'In get_report: cwd: {os.getcwd()}')
-import pdf_mods as pdfm
+from .pdf_mods import pdf_creator, pdf_splitter
 print('made it past get_report module import')
 import time
 import warnings
@@ -114,7 +114,7 @@ def getreport(report, transcript_source, local_dir = ''):
     # process pdf batch file if necessary
     if transcript_source == 0:
         # process and get filename for modified pdf file
-        filename = pdfm.pdf_splitter(report, filenames[0], local_dir)
+        filename = pdf_splitter(report, filenames[0], local_dir)
         # handle file not found.
         if not filename:
             print('Problem with pdf search. Report not found in large pdf.')
@@ -188,7 +188,7 @@ def handle_download(
         event_date = row.event_date.values[0] #type:ignore
         
         # turn it into pdf or txt file and save in local dir
-        return pdfm.pdf_creator(body=body, filename=filename+'.pdf', event_title=event_title, event_date=event_date, local_dir=local_dir)
+        return pdf_creator(body=body, filename=filename+'.pdf', event_title=event_title, event_date=event_date, local_dir=local_dir)
         
     else:
         # get file
