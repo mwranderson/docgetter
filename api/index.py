@@ -1,7 +1,7 @@
 import slack_sdk as slack
 from flask import Flask, request, jsonify
 import os
-from modules.slack_handler import handle_request
+from .modules.slack_handler import handle_request
 from dotenv import load_dotenv 
 
 # load dotenv files
