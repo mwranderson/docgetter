@@ -32,9 +32,11 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
 
-def get_report_info(report: int, transcript_source: int):
+def get_report_info(report: int, transcript_source: int) -> tuple[bool, list | str]:
     """
-    Given report number, finds it in mercury and returns the relevant row
+    Given report number, finds it in mercury \\
+    and returns directory, filename, and transcript source if found.\\
+    Returns informative error messages if not.
     """
     # initialize batch pdf file variable
     multipdf_filename = False
@@ -102,7 +104,7 @@ def get_report_info(report: int, transcript_source: int):
         directory = f"/project/kh_mercury_1/conference_call/ciq/output/transcript_data/{year}_ciq_trans_cleaned.csv"
     else:
         print(f'Invalid transcript source. Requires manual intervention. {RP_ID}.')
-        return False, f'Invalid transcript source. Requires manual intervention. {RP_ID}.'
+        return False, f'Invalid transcript source. Try again.'
 
     return True, [directory, filename, transcript_source, multipdf_filename]
 

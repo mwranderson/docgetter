@@ -126,7 +126,10 @@ def handle_get_report(client, text, channel_id, ts):
     
     # react to different responses
     if not response:
-        # react
+        # send error message if error case
+        client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
+        # give transcript source choices if not
+        client.chat_postMessage(channel=channel_id, text='Multi choice! Figure out input bruv.', thread_ts=ts)
         return
     else:
         # get necessary information
