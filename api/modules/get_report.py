@@ -6,8 +6,7 @@ import time
 import warnings
 from dotenv import load_dotenv 
 from io import StringIO
-from os.path import dirname, abspath, join
-dir = dirname(abspath(__file__))
+from typing import Union
 
 load_dotenv() 
 warnings.simplefilter(action='ignore', category=UnicodeWarning)
@@ -32,7 +31,7 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
 
-def get_report_info(report: int, transcript_source: int) -> tuple[bool, list | str]:
+def get_report_info(report: int, transcript_source: int) -> tuple[bool, Union[list, str]]:
     """
     Given report number, finds it in mercury \\
     and returns directory, filename, and transcript source if found.\\
