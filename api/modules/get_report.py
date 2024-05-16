@@ -32,14 +32,10 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
 
-def getreport(report, transcript_source, local_dir = ''):
+def get_report_info(report: int, transcript_source: int):
     """
-    Given report number, finds it in mercury and saves it to temporary directory.\\
-    This function can be used outside the context of the app, in which case \\
-    local_dir determines the output folder for saving report files. 
+    Given report number, finds it in mercury and returns the relevant row
     """
-    st_time = time.time()
-    
     # initialize batch pdf file variable
     multipdf_filename = False
     
@@ -52,21 +48,20 @@ def getreport(report, transcript_source, local_dir = ''):
     # if not found in dataset
     if not sub.shape[0]:
         print('Report does not exist in dataset. Verify report number and try again.')
-        return [False, 'Report does not exist in dataset. Verify report number and try again.', multipdf_filename]
+        return False, 'Report does not exist in dataset. Verify report number and try again.'
     
     # if multiple different matches found with report number
     if (len(set(sub.transcript_source)) > 1) or (len(set(sub.date)) > 1):
         if transcript_source > -1:
             print(f'Too many options. Requires manual intervention. {RP_ID}.')
-            return [False, f'Too many options. Requires manual intervention. {RP_ID}.', multipdf_filename]
+            return False, f'Too many options. Requires manual intervention. {RP_ID}.'
         else:
             print(f'Multiple transcripts have report id = {report}.\n\
                   Please try again, this time indicating a transcript source.')
-            return [False, f'Multiple transcripts have report id = {report}. Please try again, this time indicating a transcript source.', multipdf_filename]
+            return False, [f'Multiple transcripts have report id = {report}. Please try again, this time indicating a transcript source.']
 
-    
     # get filenames of report
-    filenames = sub.file_name.to_list()
+    filenames: list[str] = sub.file_name.to_list()
 
     # if multiple pdfs, due to oddities with old pdf downloads, pick randomly.
     # manual inspection showed that these are effectively identical. 
@@ -107,26 +102,75 @@ def getreport(report, transcript_source, local_dir = ''):
         directory = f"/project/kh_mercury_1/conference_call/ciq/output/transcript_data/{year}_ciq_trans_cleaned.csv"
     else:
         print(f'Invalid transcript source. Requires manual intervention. {RP_ID}.')
-        return [False, f'Invalid transcript source. Requires manual intervention. {RP_ID}.', multipdf_filename]
+        return False, f'Invalid transcript source. Requires manual intervention. {RP_ID}.'
+
+    return True, [directory, filename, transcript_source, multipdf_filename]
+
+def getreport(report: int, 
+              directory: str, 
+              filename: str, 
+              transcript_source: int, 
+              multipdf_filename: str, 
+              local_dir: str = ''):
+    """
+    Given report, directory and file name, finds it in mercury and saves it to temporary directory.
+    """
+
+    st_time = time.time()
     
-
     # download file
-    filename = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source, st_time=st_time)
+    filename_new = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source, st_time=st_time)
 
-    if not filename:
-        print('Problem with Capital IQ search. Requires manual intervention. {RP_ID}.')
-        return [False, 'Problem with Capital IQ search. Requires manual intervention. {RP_ID}']
+    if not filename_new:
+        print('Problem with download process. Requires manual intervention. {RP_ID}.')
+        return False, 'Problem with download process. Requires manual intervention. {RP_ID}'
 
     # process pdf batch file if necessary
     if transcript_source == 0:
         # process and get filename for modified pdf file
-        filename = pdf_splitter(report, filenames[0], local_dir)
+        filename_new = pdf_splitter(report, filename_new, local_dir)
+        # handle file not found.
+        if not filename_new:
+            print('Problem with pdf search. Report not found in large pdf.')
+            return False, 'Problem with pdf search. Report not found in large pdf: '
+   
+    return True, [filename_new, multipdf_filename]
+
+
+def getreport_local(report: int, transcript_source: int, local_dir: str):
+    """
+    Given report, transcript source, and local directory, \\
+    finds and saves file into local_dir
+    """
+
+    success, rest = get_report_info(report, transcript_source)
+
+    if success:
+        directory, filename, transcript_source, multipdf_filename = rest # type: ignore
+    else:
+        print(rest)
+        return
+    
+    st_time = time.time()
+    
+    # download file
+    filename = handle_download(directory=directory, filename=filename, local_dir=local_dir, transcript_source=transcript_source, st_time=st_time)
+
+    if not filename:
+        print('Problem with download process. Requires manual intervention. {RP_ID}.')
+        return [False, 'Problem with download process. Requires manual intervention. {RP_ID}']
+
+    # process pdf batch file if necessary
+    if transcript_source == 0:
+        # process and get filename for modified pdf file
+        filename = pdf_splitter(report, filename, local_dir)
         # handle file not found.
         if not filename:
             print('Problem with pdf search. Report not found in large pdf.')
-            return [False, 'Problem with pdf search. Report not found in large pdf.', multipdf_filename]
+            return [False, 'Problem with pdf search. Report not found in large pdf.']
    
-    return [True, filename, multipdf_filename]
+    return [True, filename]
+
 
 def handle_download(
         directory: str, 
@@ -205,6 +249,7 @@ def handle_download(
         else:
             # if download was via slack
             sftp.get(f'{directory}/{filename}', f'/tmp/{filename}')
+    
     # close mercury connection
     sftp.close()
 

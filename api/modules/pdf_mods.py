@@ -32,19 +32,19 @@ class PDF(FPDF):
         self.cell(0, 10, str(self.page_no()), align='C')
 
 
-def pdf_splitter(report, file, local_dir = ''):
+def pdf_splitter(report, filename, local_dir = ''):
     ''' Old pdf files are saved as bundles. \\ 
     Given report number and address to master pdf bundle file, \\ 
     cuts out that report and returns it as its own PDF.\\
     If given local_dir, operates using local directory'''
     # open master pdf bundle
     if local_dir:
-        reader = PdfReader(f'{local_dir}/{file}')
+        reader = PdfReader(f'{local_dir}/{filename}')
     else:
-        reader = PdfReader("/tmp/"+file)
+        reader = PdfReader("/tmp/"+filename)
     # get number of pages
     number_of_pages = len(reader.pages)
-    # initialize variables needed cut up pages
+    # initialize variables needed to cut up pages
     break_point = False
     match = False
     page_range = ''

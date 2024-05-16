@@ -1,4 +1,4 @@
-from .get_report import getreport
+from .get_report import getreport, get_report_info
 
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'
@@ -107,24 +107,60 @@ def handle_get_report(client, text, channel_id, ts):
         transcript_source = ts_dict[transcript_source]
 
     # send processing message
-    client.chat_postMessage(channel=channel_id, text=f'Getting report {report_id}...', thread_ts=ts)
-    # try and get report 
+    client.chat_postMessage(channel=channel_id, text=f'Looking for report {report_id}...', thread_ts=ts)
+    
+    # get report id info
+    response, rest = get_report_info(report_id, transcript_source)
+
+    # possible outcomes: 
+    # 1. report not found
+    # 2. too many options -- fixable with transcript_source
+    # 3. too many options -- not fixable with transcript_source
+    # 4. invalid transcript source -- shouldn't be happening though
+    # 5. Success. Downloading report.
+
+    # 1 and 4 can be combined.
+    # 3 needs RP call
+    # 2 has IO
+    # 5 is nothing
+    
+    # react to different responses
+    if not response:
+        # react
+        return
+    else:
+        # get necessary information
+        directory, filename, transcript_source, multipdf_filename = rest
+    
+    # send processing message
+    client.chat_postMessage(channel=channel_id, text=f'Found report {report_id}. Downloading...', thread_ts=ts)
+    # send capital IQ warning
+    if transcript_source == 3:
+        client.chat_postMessage(channel=channel_id, text=f'Warning: You have requested a Capital IQ transcript. Due to the strucutre of our dataset, this request will take longer, and might fail.', thread_ts=ts)
+    # send random pdf choice warning
+    if multipdf_filename:
+        client.chat_postMessage(channel=channel_id, text=f'Warning: Report exists in multiple pdf files. \nFile: "{multipdf_filename}" chosen at random.', thread_ts=ts)
+
+
+    # try and download report 
     try:
-        success, filename, mutilpdf_filename = getreport(report_id, transcript_source)
+        success, rest = getreport(report=report_id, directory=directory, filename=filename, multipdf_filename=multipdf_filename, transcript_source=transcript_source) #type: ignore
     except Exception as e:
         # return error reason
         client.chat_postMessage(channel=channel_id, thread_ts = ts, text=f'Report not found due to {e}\nRequires manual intervention {RP_ID}.')
         return
-    
-    # handle if there were multiple names found -- occurs due to oddities in old pdf downloads
-    if mutilpdf_filename:
-        client.chat_postMessage(channel=channel_id, text=f'Report exists in multiple pdf files. \nFile: "{mutilpdf_filename}" chosen at random.', thread_ts=ts)
-    # handle some kind of error
-    if not success: 
-        client.chat_postMessage(channel=channel_id, text=str(filename), thread_ts=ts)
-    # all went well -- upload files from tempdir and delete it
-    else:
+
+    # got report successfully
+    if success:
         client.files_upload_v2(channel=channel_id,
                 initial_comment="Here's the report:",
                 file=f'/tmp/{filename}', 
-                thread_ts = ts)
+                thread_ts = ts)   
+    else:
+        # handle error cases
+        # if pdf not found in multifile pdf
+        if multipdf_filename:
+            client.chat_postMessage(channel=channel_id, text=str(rest)+multipdf_filename, thread_ts=ts)
+        else:
+        # general download problem
+            client.chat_postMessage(channel=channel_id, text=str(rest), thread_ts=ts)
