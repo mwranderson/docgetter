@@ -75,6 +75,7 @@ def slack_interact():
 
     print(f'{request=}', end='\n\n\n')
     print(f'{dir(request)=})', end='\n\n\n')
+    print(f'{request.get_json()=})', end='\n\n\n')
     print(f'{request.body=})', end='\n\n\n')
     print(f'{request.body.payload=})', end='\n\n\n')
     print(f'{request.body.payload.get_json()=})', end='\n\n\n')
