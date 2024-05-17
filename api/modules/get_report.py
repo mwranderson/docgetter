@@ -59,7 +59,7 @@ def get_report_info(report: int, transcript_source: int) -> tuple[bool, Union[li
         else:
             print(f'Multiple transcripts have report id = {report}.\n\
                   Please try again, this time indicating a transcript source.')
-            return False, sub.values.tolist()
+            return False, sub.reset_index(drop=True)
 
     # get filenames of report
     filenames: list[str] = sub.file_name.to_list()

@@ -29,6 +29,21 @@ def handle_request(client, event_data):
     Given slack client and request json, handles request, \\
     passing it to corresponding handler.
     '''
+    # check if it's an interaction
+    if event_data['type'] == 'block_actions':
+        container = event_data.get('container')
+        # get channel_id
+        channel_id = container['channel_id']
+        # get thread information to reply in thread if needed
+        thread_ts = container.get('thread_ts')
+        if thread_ts:
+            ts = thread_ts
+
+        # get report and transcript source info
+        text = 
+        
+        # get requested report
+        handle_get_report(client, text, channel_id, ts)
 
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
@@ -58,34 +73,65 @@ def handle_request(client, event_data):
     # process other future requests such as dropbox monitoring etc.
     # for now, only get report is supported
     else:
-        client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)   
+        client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)  
+        
+def create_measure(value: str | int, max_len: int):
+    '''Helper for block builder. \\
+    Given value and max len of block, returns a well-spaced string of value.'''
+
+    # create formatting pattern
+    pat = f':^{max_len}'
+    formatting = '{'+pat+'}'
+    
+    # return text with formatting applied
+    return formatting.format(value)
 
 def multi_choice_block_builder(report, options):
     '''
     Given 2-D array of transcript choices from dataframe, returns slack choice block
     '''
+    # get option max lengths
+    report_len = options.report.astype(str).str.len().max()
+    ts_len = 8
+    file_name_len = options.file_name.astype(str).str.len().max() + 2
+    date_len = options.date.astype(str).str.len().max()
+    
+    # extra space constant
+    header_padding = 2*' '
+
     # construct divider
     divider = { "type": "divider" }
 
     # construct top message
-    top_message = f"Multiple transcrips found in database with report = {report}.\n\n *Please select the one you are looking for:*"
+    top_message = f"Multiple transcrips in database with report = {report}.\n\n *Please select the one you are looking for:*"
     # construct top part
     top_part = {
         'type': 'section', 
         'text': { 'type': 'mrkdwn',
                  'text': top_message}}
 
+    # construct table header
+    table_text = f"{header_padding}|{create_measure('report', report_len)}|{create_measure('source', ts_len)}|{create_measure('file_name', file_name_len)}|{create_measure('date', date_len)}|\n"
+    table_header = {
+			"type": "section",
+			"text": {
+				"type": "mrkdwn",
+				"text": f"```{table_text}```"
+			}
+		}
     # init choices list
     choices_list = []
-    # get num choices
-    num_choices = len(options)
+    
+    # create choices list
+    for i, option in enumerate(options.values.tolist()):
 
-    # get choices
-    for i in range(num_choices):
+        # create row 
+        row = f'{create_measure(option[0], report_len)}|{create_measure(option[1], ts_len)}|{create_measure(option[2], file_name_len)}|{create_measure(option[3], date_len)}|'
+       
         choice = {
             'text': {
-                'type': 'plain_text',
-                'text': f'Row number {i+1}'
+                'type': 'mrkdwn',
+                'text': f"```{row}```"
             },
             'value': f'value-{i}'
         }
@@ -93,7 +139,7 @@ def multi_choice_block_builder(report, options):
         choices_list.append(choice)
 
     # construct choice part
-    choice_buttons = {'type': 'actions', 
+    choices = {'type': 'actions', 
                       'elements': [
                           {
                             'type': 'radio_buttons',
@@ -101,23 +147,7 @@ def multi_choice_block_builder(report, options):
 					        "action_id": "actionId-0"
                           }]}
 
-    table_text = ''
-
-    # create table text
-    for option in options:
-        table_text += f'{option[0]} | {option[1]} | {option[2]} | {option[3]}\n'
-
-    # build choice table
-    choice_table = {'type': 'context', 
-                    'elements': [
-                        {
-                            'type': 'mrkdwn',
-                            'text': ' report | date | transcript_source | file_name\n' + table_text
-                        }
-                    ]}
-
-
-    blocks = [top_part, divider, choice_buttons, divider, choice_table]
+    blocks = [top_part, divider, table_header, choices, divider]
 		
     return blocks
 
