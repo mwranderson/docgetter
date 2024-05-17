@@ -75,13 +75,9 @@ def slack_interact():
 
     print(f'{request=}', end='\n\n\n')
     print(f'{dir(request)=})', end='\n\n\n')
-    print(f'{dir(request)=})', end='\n\n\n')
-    # convert to json
-    message = request.payload.get_json()
-    print(f'{message=}')
-    body = request.body.get_json()
-    print(f'{body=}')
-
+    print(f'{request.body=})', end='\n\n\n')
+    print(f'{request.body.payload=})', end='\n\n\n')
+    print(f'{request.body.payload.get_json()=})', end='\n\n\n')
 
 
     ## this method of avoiding duplicates must be done
