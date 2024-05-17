@@ -29,7 +29,7 @@ def handle_request(client, event_data):
     Given slack client and request json, handles request, \\
     passing it to corresponding handler.
     '''
-    
+
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
         print(f'Not an app_mention.')
@@ -192,7 +192,7 @@ def handle_get_report(client, text, channel_id, ts):
             client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
         else:
             # give transcript source choices if not
-            client.chat_postMessage(channel=channel_id, thread_ts=ts, blocks=multi_choice_block_builder(report_id, rest))
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, text='More information needed.', blocks=multi_choice_block_builder(report_id, rest))
         return
     else:
         # get necessary information

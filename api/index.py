@@ -25,7 +25,7 @@ def hey_slack():
     return jsonify({'message': 'Hello world!'})
 
 # handle all incoming post traffic to events end point
-@app.route('/slack/events', methods=['POST'])  # type: ignore
+@app.route('/slack/events', methods=['POST'])
 def verify_slack():
 
 
@@ -53,7 +53,7 @@ def verify_slack():
     message = request.get_json()
 
     # return challenge if there is one
-    challenge = message.get('challenge') #type: ignore
+    challenge = message.get('challenge')
     if challenge:
         # create json response
         res = jsonify({'challenge': challenge})
@@ -70,9 +70,13 @@ def verify_slack():
 
 
 # handle all incoming post traffic to interactions end point
-@app.route('/slack/interactions', methods=['POST'])  # type: ignore
+@app.route('/slack/interactions', methods=['POST'])
 def slack_interact():
 
+    print(f'{request=}', end='\n\n\n')
+    # convert to json
+    message = request.get_json()
+    print(f'{message=}')
 
     ## this method of avoiding duplicates must be done
     ## since free hosting services do not allow threading
@@ -94,11 +98,10 @@ def slack_interact():
         return res, 418
 
 
-    # convert to json
-    message = request.get_json()
+    
 
     # return challenge if there is one
-    challenge = message.get('challenge') #type: ignore
+    challenge = message.get('challenge')
     if challenge:
         # create json response
         res = jsonify({'challenge': challenge})
@@ -107,8 +110,7 @@ def slack_interact():
         # return response
         return res
     
-    print(f'{request=}', end='\n\n\n')
-    print(f'{message=}')
+   
         
     # return 200
     return {'message': 'succesful request'}, 200
