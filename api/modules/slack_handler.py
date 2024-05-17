@@ -1,3 +1,4 @@
+from typing import Union
 from .get_report import getreport, get_report_info
 
 # slack ID of RP in charge -- currently Esfandiar
@@ -75,7 +76,7 @@ def handle_request(client, event_data):
     else:
         client.chat_postMessage(channel=channel_id, text='Invalid command. Type "get report" followed by report number.', thread_ts=ts)  
         
-def create_measure(value: str | int, max_len: int):
+def create_measure(value: Union[str, int], max_len: int):
     '''Helper for block builder. \\
     Given value and max len of block, returns a well-spaced string of value.'''
 
