@@ -48,12 +48,22 @@ def verify_slack():
         # set content type 
         res.headers['x-slack-no-retry'] = '1'
         return res, 418
-    
-    # get payload
-    payload = json.loads(request.form['payload'])
+
+    # convert to json
+    message = request.get_json()
+
+    # return challenge if there is one
+    challenge = message.get('challenge')
+    if challenge:
+        # create json response
+        res = jsonify({'challenge': challenge})
+        # set content type 
+        res.headers['Content-Type'] = 'application/json'
+        # return response
+        return res
     
     # run process
-    handle_request(client, payload)
+    handle_request(client, message)
         
     # return 200
     return {'message': 'succesful request'}, 200
@@ -89,17 +99,5 @@ def slack_interact():
     # handle request
     handle_request(client, payload)
 
-    # return challenge if there is one
-    challenge = message.get('challenge') #type: ignore
-    if challenge:
-        # create json response
-        res = jsonify({'challenge': challenge})
-        # set content type 
-        res.headers['Content-Type'] = 'application/json'
-        # return response
-        return res
-    
-   
-        
     # return 200
     return {'message': 'succesful request'}, 200
