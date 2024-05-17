@@ -40,11 +40,22 @@ def handle_request(client, event_data):
         if thread_ts:
             ts = thread_ts
 
-        # get report and transcript source info
-        text = 'test'
+        # get selected option
+        choice_raw = event_data.get('actions')[0]['selected_option']
+
+        # clean choice text
+        choice = choice_raw.get('text').get('text').replace('```', '') 
+        
+        # get choice parts
+        parts = choice.split('|')
+
+        # construct request text
+        text = parts[0].strip() + ' ' + parts[1].strip()
         
         # get requested report
         handle_get_report(client, text, channel_id, ts)
+
+        return
 
     # Only continue if it's an app mention
     if not check_request_type(event_data, 'app_mention'):
