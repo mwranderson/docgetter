@@ -74,9 +74,15 @@ def verify_slack():
 def slack_interact():
 
     print(f'{request=}', end='\n\n\n')
+    print(f'{dir(request)=})', end='\n\n\n')
+    print(f'{dir(request)=})', end='\n\n\n')
     # convert to json
-    message = request.get_json()
+    message = request.payload.get_json()
     print(f'{message=}')
+    body = request.body.get_json()
+    print(f'{body=}')
+
+
 
     ## this method of avoiding duplicates must be done
     ## since free hosting services do not allow threading
