@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import os
 from .modules.slack_handler import handle_request
 from dotenv import load_dotenv 
+import json
 
 # load dotenv files
 load_dotenv() 
@@ -73,13 +74,6 @@ def verify_slack():
 @app.route('/slack/interactions', methods=['POST'])
 def slack_interact():
 
-    print(f'{request=}', end='\n\n\n')
-    print(f'{dir(request)=})', end='\n\n\n')
-    print(f'{request.get_json()=})', end='\n\n\n')
-    print(f'{request.body=})', end='\n\n\n')
-    print(f'{request.body.payload=})', end='\n\n\n')
-    print(f'{request.body.payload.get_json()=})', end='\n\n\n')
-
 
     ## this method of avoiding duplicates must be done
     ## since free hosting services do not allow threading
@@ -100,11 +94,14 @@ def slack_interact():
         res.headers['x-slack-no-retry'] = '1'
         return res, 418
 
+    # get payload
+    payload = json.loads(request.form['payload'])
 
-    
+    # handle request
+    handle_request(client, payload)
 
     # return challenge if there is one
-    challenge = message.get('challenge')
+    challenge = message.get('challenge') #type: ignore
     if challenge:
         # create json response
         res = jsonify({'challenge': challenge})
