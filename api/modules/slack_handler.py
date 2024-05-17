@@ -40,7 +40,7 @@ def handle_request(client, event_data):
             ts = thread_ts
 
         # get report and transcript source info
-        text = 
+        text = 'test'
         
         # get requested report
         handle_get_report(client, text, channel_id, ts)
