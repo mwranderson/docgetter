@@ -9,8 +9,8 @@ If multiple files are found and no transcript_source is provided, returns an int
 
 ## Notes
 - Historical PDF reports are sometimes contained in multiple files. 
-From random searches, they seem identical and this seems like a bug in the collection process. 
-Currently, solution is random choice --> could benefit from improvement.
+From random searches, they are almost identical and this seems like a bug in the collection process. 
+Currently, solution is randomly choosing one.
 - CapitalIQ transcript search is very time-inefficient due to different nature of documents. <br>
 Since this project runs for free, the code only has enough time to turn some CapitalIQ transcripts into PDFs.<br>
 For years past 2009, it is likely manual intervention is required.
