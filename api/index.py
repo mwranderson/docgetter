@@ -17,9 +17,6 @@ app = Flask(__name__)
 # start slack client
 client = slack.WebClient(token=SLACK_TOKEN)
 
-# start event ID tracker
-EVENT_ID_QUEUE = []
-
 # basic get handler
 @app.route('/', methods=['GET'])
 def hey_slack():
