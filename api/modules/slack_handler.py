@@ -180,43 +180,18 @@ def handle_get_slide(client, text, channel_id, ts):
                                 text='Invalid request. Provide more identifying information on the slide.', 
                                 thread_ts=ts)
         return
-    # get request parts
-    request_parts = text.split(' ')
     
-    # check if request asks for too much
-    if len(request_parts) > 1:
-        client.chat_postMessage(channel=channel_id, 
-                                text='Invalid request. Provide either the slide ID or the slide file name', 
-                                thread_ts=ts)
-        return
-    
-    # get slide id
-    slide_id = request_parts[0]
-
-    # defend against non numeric report id
-    if not slide_id.isnumeric():
-        client.chat_postMessage(channel=channel_id, text=f'Invalid slide number. It must be an integer.', thread_ts=ts)
-        return
-    else:
-        # convert to integer
-        slide_id = int(slide_id)
-
-    # init missing slide_file_name
+    # init slide_id and slide_file_name and slide_identifier variables
+    slide_identifer = 0
+    slide_id = 0
     slide_file_name = ''
-    # init slide identifier
-    slide_identifer = slide_id
-    # use file name if no slide_id provided i.e. slide_id is 0
-    if not slide_id:
-        
-
-        # get slide_file_name
-        if not len(request_parts) > 1:
-            client.chat_postMessage(channel=channel_id, text=f'No file name found. Please provide the file name.', thread_ts=ts)
-            return
-        slide_file_name = request_parts[1]
+    # figure out if id is given or file name
+    if text.isnumeric(): 
+        slide_id = int(text)
+        slide_identifer = slide_id
+    else:
+        slide_file_name = text
         slide_identifer = slide_file_name
-
-    
 
     # send processing message
     client.chat_postMessage(channel=channel_id, text=f'Looking for {slide_identifer}...', thread_ts=ts)

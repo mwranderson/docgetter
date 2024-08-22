@@ -118,7 +118,7 @@ def get_file_info(report: int = 0,
     # slide case
     elif slide_mode:
         # get mercury address of file 
-        merc_add = sub.ADDRESS.values[0]
+        merc_add = sub.address.values[0]
         print(f'{merc_add=}')
         directory = f"/project/FactSet/Doc_Retrieval_API/factset_slides_API/output/{merc_add}"
 
