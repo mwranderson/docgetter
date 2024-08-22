@@ -1,5 +1,5 @@
 from typing import Union
-from .get_report import getreport, get_report_info
+from .get_report import getreport, get_file_info
 
 # slack ID of RP in charge -- currently Esfandiar
 RP_ID = '<@U01KCEYLA85>'
@@ -82,6 +82,11 @@ def handle_request(client, event_data):
         text = text.split('get report')[-1].strip()
         # handle get report
         handle_get_report(client, text, channel_id, ts)
+    elif "get slide" in text:# separate out unneeded parts of text
+        text = text.split('get slide')[-1].strip()
+        # handle get report
+        handle_get_slide(client, text, channel_id, ts)
+
     # process other future requests such as dropbox monitoring etc.
     # for now, only get report is supported
     else:
@@ -164,6 +169,111 @@ def multi_choice_block_builder(report, options):
     return blocks
 
 
+def handle_get_slide(client, text, channel_id, ts):
+    '''
+    Given slack client and request subparts, processes get report request, \\
+    including communicating with backend as well as slack.
+    '''
+    # check if request is complete
+    if not text:
+        client.chat_postMessage(channel=channel_id, 
+                                text='Invalid request. Provide more identifying information on the slide.', 
+                                thread_ts=ts)
+        return
+    # get request parts
+    request_parts = text.split(' ')
+    
+    # check if request asks for too much
+    if len(request_parts) > 1:
+        client.chat_postMessage(channel=channel_id, 
+                                text='Invalid request. Provide either the slide ID or the slide file name', 
+                                thread_ts=ts)
+        return
+    
+    # get slide id
+    slide_id = request_parts[0]
+
+    # defend against non numeric report id
+    if not slide_id.isnumeric():
+        client.chat_postMessage(channel=channel_id, text=f'Invalid slide number. It must be an integer.', thread_ts=ts)
+        return
+    else:
+        # convert to integer
+        slide_id = int(slide_id)
+
+    # init slide identifier
+    slide_identifer = slide_id
+    # use file name if no slide_id provided i.e. slide_id is 0
+    if not slide_id:
+        # init missing slide_file_name
+        slide_file_name = ''
+
+        # get slide_file_name
+        if not len(request_parts) > 1:
+            client.chat_postMessage(channel=channel_id, text=f'No file name found. Please provide the file name.', thread_ts=ts)
+            return
+        slide_file_name = request_parts[1]
+        slide_identifer = slide_file_name
+
+    
+
+    # send processing message
+    client.chat_postMessage(channel=channel_id, text=f'Looking for {slide_identifer}...', thread_ts=ts)
+    
+    # get slide info
+    response, rest = get_file_info(slide_id=slide_id, slide_file_name=slide_file_name, slide_mode=True)
+
+    # REVIEW THESE
+    # possible outcomes: 
+    # 1. report not found
+    # 2. too many options -- fixable with transcript_source
+    # 3. too many options -- not fixable with transcript_source
+    # 4. invalid transcript source -- shouldn't be happening though
+    # 5. Success. Downloading report.
+
+    # 1 and 4 can be combined.
+    # 3 needs RP call
+    # 2 has IO
+    # 5 is nothing
+    
+    # react to different responses
+    if not response:
+        if len(rest) > 10:
+            # send error message if error case
+            client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
+        else:
+            # give choices if not
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, text='More information needed.', blocks=multi_choice_block_builder(slide_id, rest))
+        return
+    else:
+        # get necessary information
+        directory, filename, transcript_source, multipdf_filename = rest
+    
+    
+    # send processing message
+    client.chat_postMessage(channel=channel_id, text=f'Found slide {slide_identifer}. Downloading...', thread_ts=ts)
+
+    # try and download report 
+    try:
+        success, rest = getreport(report=-1, directory=directory, filename=filename, multipdf_filename=multipdf_filename, transcript_source=-1, slide_mode=True) #type: ignore
+    except Exception as e:
+        # return error reason
+        client.chat_postMessage(channel=channel_id, thread_ts = ts, text=f'Report not found due to {e}\nRequires manual intervention {RP_ID}.')
+        return
+
+    # got report successfully
+    if success:
+        filename, multipdf_filename = rest
+        client.files_upload_v2(channel=channel_id,
+                initial_comment="Here's the slide:",
+                file=f'/tmp/{filename}', 
+                thread_ts = ts)
+    else:
+        # general download problem
+        client.chat_postMessage(channel=channel_id, text=str(rest), thread_ts=ts)
+
+
+
 def handle_get_report(client, text, channel_id, ts):
     '''
     Given slack client and request subparts, processes get report request, \\
@@ -213,7 +323,7 @@ def handle_get_report(client, text, channel_id, ts):
     client.chat_postMessage(channel=channel_id, text=f'Looking for report {report_id}...', thread_ts=ts)
     
     # get report info
-    response, rest = get_report_info(report_id, transcript_source)
+    response, rest = get_file_info(report_id, transcript_source)
 
     # possible outcomes: 
     # 1. report not found

@@ -31,33 +31,47 @@ key = pk.RSAKey.from_private_key(StringIO(str(os.environ.get("MERCURY_KEY"))))
 # dataset of all reports with column set up to download from mercury directory structure
 DF = pd.read_csv('./trans_ref.csv', compression='gzip')
 
-def get_report_info(report: int, transcript_source: int) -> tuple[bool, Union[list, str]]:
+def get_file_info(report: int = 0, 
+                  transcript_source: int = -1,
+                  slide_id: int = 0,
+                  slide_file_name : str = '',
+                  slide_mode = False) -> tuple[bool, Union[list, str]]:
     """
     Given report number, finds it in mercury \\
     and returns directory, filename, and transcript source if found.\\
-    Returns informative error messages if not.
+    Returns informative error messages if not.\\
+    If looking for slides, set slide_mode to True (Default False).
     """
     # initialize batch pdf file variable
     multipdf_filename = False
+
+
     
-    # check if transcript source was provided and subset dataset accordingly
-    if transcript_source > -1:
-        sub = DF[(DF.report == report) & (DF.transcript_source == transcript_source)].drop_duplicates()
+    # subset dataset accordingly
+    if slide_mode:
+        if slide_file_name:
+            sub = DF[(DF.file_name == slide_file_name)]
+        else:
+            sub = DF[(DF.slide_id == slide_id)]
     else:
-        sub = DF[DF.report == report].drop_duplicates()
+        if transcript_source > -1:
+            sub = DF[(DF.report == report) & (DF.transcript_source == transcript_source)].drop_duplicates()
+        else:
+            sub = DF[DF.report == report].drop_duplicates()
+       
     
     # if not found in dataset
     if not sub.shape[0]:
-        print('Report does not exist in dataset. Verify report number and try again.')
-        return False, 'Report does not exist in dataset. Verify report number and try again.'
+        print('File does not exist in dataset. Verify provided information and try again.')
+        return False, 'File does not exist in dataset. Verify provided information and try again.'
     
-    # if multiple different matches found with report number
-    if (len(set(sub.transcript_source)) > 1) or (len(set(sub.date)) > 1):
+    # if multiple different matches found
+    if (len(set(sub.transcript_source.dropna())) > 1) or (len(set(sub.date)) > 1):
         if transcript_source > -1:
             print(f'Too many options. Requires manual intervention. {RP_ID}.')
             return False, f'Too many options. Requires manual intervention. {RP_ID}.'
         else:
-            print(f'Multiple transcripts have report id = {report}.\n\
+            print(f'Multiple files have id = {report | slide_id}.\n\
                   Please try again, this time indicating a transcript source.')
             return False, sub.reset_index(drop=True)
 
@@ -67,10 +81,10 @@ def get_report_info(report: int, transcript_source: int) -> tuple[bool, Union[li
     # if multiple pdfs, due to oddities with old pdf downloads, pick randomly.
     # manual inspection showed that these are effectively identical. 
     if len(filenames) > 1:
-        print('Multipdf problem. One PDF picked at random.')
+        print('Multiple duplicate files problem. One instance picked at random.')
         multipdf_filename = filenames[0]
     
-    print(f'{report=}')
+    print(f'id={report|slide_id}')
 
     # get filename
     filename = filenames[0]
@@ -101,6 +115,9 @@ def get_report_info(report: int, transcript_source: int) -> tuple[bool, Union[li
     # capital IQ case
     elif transcript_source == 3:
         directory = f"/project/kh_mercury_1/conference_call/ciq/output/transcript_data/{year}_ciq_trans_cleaned.csv"
+    # slide case
+    elif slide_mode:
+        directory = f"/project/FactSet/Doc_Retrieval_API/factset_slides_API/output"
     else:
         print(f'Invalid transcript source. Requires manual intervention. {RP_ID}.')
         return False, f'Invalid transcript source. Try again.'
@@ -112,9 +129,11 @@ def getreport(report: int,
               filename: str, 
               transcript_source: int, 
               multipdf_filename: str, 
-              local_dir: str = ''):
+              local_dir: str = '',
+              slide_mode = False):
     """
-    Given report, directory and file name, finds it in mercury and saves it to temporary directory.
+    Given report, directory and file name, finds it in mercury and saves it to temporary directory. \\
+    If looking for slide, set slide_mode to True (default False)
     """
 
     st_time = time.time()
@@ -145,7 +164,7 @@ def getreport_local(report: int, transcript_source: int, local_dir: str):
     """
 
     # get report info
-    success, rest = get_report_info(report, transcript_source)
+    success, rest = get_file_info(report, transcript_source)
 
     if success:
         directory, filename, transcript_source, multipdf_filename = rest # type: ignore
