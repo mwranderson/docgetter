@@ -26,7 +26,6 @@ def hey_slack():
 @app.route('/slack/events', methods=['POST'])
 def verify_slack():
 
-
     ## this method of avoiding duplicates must be done
     ## since free hosting services do not allow threading
     ## if we do not do this, slack will send us the bot request
@@ -69,7 +68,6 @@ def verify_slack():
 # handle all incoming post traffic to interactions end point
 @app.route('/slack/interactions', methods=['POST'])
 def slack_interact():
-
 
     ## this method of avoiding duplicates must be done
     ## since free hosting services do not allow threading

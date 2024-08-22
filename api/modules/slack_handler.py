@@ -201,12 +201,13 @@ def handle_get_slide(client, text, channel_id, ts):
         # convert to integer
         slide_id = int(slide_id)
 
+    # init missing slide_file_name
+    slide_file_name = ''
     # init slide identifier
     slide_identifer = slide_id
     # use file name if no slide_id provided i.e. slide_id is 0
     if not slide_id:
-        # init missing slide_file_name
-        slide_file_name = ''
+        
 
         # get slide_file_name
         if not len(request_parts) > 1:
