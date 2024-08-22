@@ -279,6 +279,7 @@ def handle_get_report(client, text, channel_id, ts):
     # defend against non numeric report id
     if not report_id.isnumeric():
         client.chat_postMessage(channel=channel_id, text=f'Invalid report number. It must be an integer.', thread_ts=ts)
+        print(f'Original message: {text}')
         return
     else:
         # convert to integer
