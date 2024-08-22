@@ -32,6 +32,8 @@ def verify_slack():
     ## up to 4 times in a 5 minute window
     ## slack retries if we don't respond 200 within 3 seconds of initial
     ## request
+    print(f'{request=}')
+    print(f'{request.headers=}')
     
     # trying header retry check to see if we are getting time out retries
     retry_check_reason = request.headers.get('x-slack-retry-reason')

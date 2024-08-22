@@ -30,6 +30,7 @@ def handle_request(client, event_data):
     Given slack client and request json, handles request, \\
     passing it to corresponding handler.
     '''
+    print(f'{event_data=}')
     # check if it's an interaction
     if event_data['type'] == 'block_actions':
         container = event_data.get('container')
@@ -244,9 +245,11 @@ def handle_get_slide(client, text, channel_id, ts):
                 initial_comment="Here's the slide:",
                 file=f'/tmp/{filename}', 
                 thread_ts = ts)
+        return
     else:
         # general download problem
         client.chat_postMessage(channel=channel_id, text=str(rest), thread_ts=ts)
+        return
 
 
 
