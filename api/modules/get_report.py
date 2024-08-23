@@ -12,11 +12,11 @@ load_dotenv()
 warnings.simplefilter(action='ignore', category=UnicodeWarning)
 
 # slack ID of RP in charge -- currently Esfandiar
-RP_ID = '<@U01KCEYLA85>'
+RP_ID = '<@U079GUP88LW>'
 
 # ssh into mercury using paramiko
 host = 'mercury.chicagobooth.edu'
-username = 'erouhani'
+username = 'mrumsey0'
 # increasing paramiko speed
 class FastTransport(pk.Transport):
     def __init__(self, sock):
@@ -66,13 +66,13 @@ def get_file_info(report: int = 0,
         return False, 'File does not exist in dataset. Verify provided information and try again.'
     
     # if multiple different matches found
-    if (len(set(sub.transcript_source.dropna())) > 1) or (len(set(sub.date)) > 1):
+    if (len(set(sub.transcript_source.dropna())) > 1) or (len(set(sub.date)) > 1) or (len(set(sub.address)) > 1):
         if transcript_source > -1:
             print(f'Too many options. Requires manual intervention. {RP_ID}.')
             return False, f'Too many options. Requires manual intervention. {RP_ID}.'
         else:
-            print(f'Multiple files have id = {report | slide_id}.\n\
-                  Please try again, this time indicating a transcript source.')
+            print(f'Multiple files have provided information.\n\
+                    Please choose your desired file.')
             return False, sub.reset_index(drop=True)
 
     # get filenames of report
