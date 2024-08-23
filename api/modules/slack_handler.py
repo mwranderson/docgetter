@@ -49,17 +49,28 @@ def handle_request(client, event_data):
         # clean choice text
         choice = choice_raw.get('text').get('text').replace('```', '') 
 
-        print(f'handling choice {choice=}')
-        
         # get choice parts
         parts = choice.split('|')
 
-        # construct request text
-        text = parts[0].strip() + ' ' + parts[1].strip()
-        
-        # get requested report
-        handle_get_report(client, text, channel_id, ts)
-
+        # check if slide or report
+        if '.pdf' in choice:
+            # slide mode
+            # construct request text
+            text = parts[0].strip()
+            # get directory
+            directory = f"/project/FactSet/Doc_Retrieval_API/factset_slides_API/output/{parts[-2]}"
+            # get slide
+            handle_get_slide(client, text, channel_id, ts, directory=directory)
+            pass
+        else:
+            # transcript mode
+            # construct request text
+            text = parts[0].strip() + ' ' + parts[1].strip()
+            # standardize report/transcript float conversions
+            text = text.replace('.0', '')
+            # get requested report
+            handle_get_report(client, text, channel_id, ts)
+   
         return
 
     # Only continue if it's an app mention
@@ -185,10 +196,11 @@ def multi_choice_block_builder(report, options, slide_mode = False):
     return blocks
 
 
-def handle_get_slide(client, text, channel_id, ts):
+def handle_get_slide(client, text, channel_id, ts, directory = None):
     '''
     Given slack client and request subparts, processes get report request, \\
-    including communicating with backend as well as slack.
+    including communicating with backend as well as slack.\\
+    Allow full directory provided in case of duplicates to circumvent duplicate issues.
     '''
     # check if request is complete
     if not text:
@@ -229,7 +241,7 @@ def handle_get_slide(client, text, channel_id, ts):
     # 5 is nothing
     
     # react to different responses
-    if not response:
+    if not response and not directory:
         if len(rest) > 10:
             # send error message if error case
             client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
@@ -237,6 +249,8 @@ def handle_get_slide(client, text, channel_id, ts):
             # give choices if not
             client.chat_postMessage(channel=channel_id, thread_ts=ts, text='More information needed.', blocks=multi_choice_block_builder(slide_id, rest, slide_mode = True))
         return
+    elif directory:
+        non_directory, filename, transcript_source, multipdf_filename = rest
     else:
         # get necessary information
         directory, filename, transcript_source, multipdf_filename = rest
