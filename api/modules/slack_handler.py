@@ -196,7 +196,7 @@ def multi_choice_block_builder(report, options, slide_mode = False):
     return blocks
 
 
-def handle_get_slide(client, text, channel_id, ts, directory = None):
+def handle_get_slide(client, text, channel_id, ts, directory = None, filename = None):
     '''
     Given slack client and request subparts, processes get report request, \\
     including communicating with backend as well as slack.\\
@@ -250,7 +250,7 @@ def handle_get_slide(client, text, channel_id, ts, directory = None):
             client.chat_postMessage(channel=channel_id, thread_ts=ts, text='More information needed.', blocks=multi_choice_block_builder(slide_id, rest, slide_mode = True))
         return
     elif directory:
-        non_directory, filename, transcript_source, multipdf_filename = rest
+        multipdf_filename = ''
     else:
         # get necessary information
         directory, filename, transcript_source, multipdf_filename = rest
