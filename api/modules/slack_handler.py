@@ -30,9 +30,9 @@ def handle_request(client, event_data):
     Given slack client and request json, handles request, \\
     passing it to corresponding handler.
     '''
-    print(f'{event_data=}')
     # check if it's an interaction
     if event_data['type'] == 'block_actions':
+
         container = event_data.get('container')
         # get channel_id
         channel_id = container['channel_id']
@@ -44,8 +44,12 @@ def handle_request(client, event_data):
         # get selected option
         choice_raw = event_data.get('actions')[0]['selected_option']
 
+        print(f'handling interaction {choice_raw=}')
+
         # clean choice text
         choice = choice_raw.get('text').get('text').replace('```', '') 
+
+        print(f'handling choice {choice=}')
         
         # get choice parts
         parts = choice.split('|')
@@ -104,10 +108,12 @@ def create_measure(value: Union[str, int], max_len: int):
     # return text with formatting applied
     return formatting.format(value)
 
-def multi_choice_block_builder(report, options):
+def multi_choice_block_builder(report, options, slide_mode = False):
     '''
-    Given 2-D array of transcript choices from dataframe, returns slack choice block
+    Given 2-D array of transcript choices from dataframe, returns slack choice block \\
+    if dealing with slides, set slide_mode to True
     '''
+    print(f'{options=}')
     # get option max lengths
     report_len = options.report.astype(str).str.len().max()
     ts_len = 8
@@ -121,7 +127,10 @@ def multi_choice_block_builder(report, options):
     divider = { "type": "divider" }
 
     # construct top message
-    top_message = f"Multiple transcrips in database with report = {report}.\n\n *Please select the one you are looking for:*"
+    if slide_mode:
+        top_message = f"Multiple slides in database.\n\n *Please select the one you are looking for:*"
+    else:
+        top_message = f"Multiple transcrips in database with report = {report}.\n\n *Please select the one you are looking for:*"
     # construct top part
     top_part = {
         'type': 'section', 
@@ -129,7 +138,10 @@ def multi_choice_block_builder(report, options):
                  'text': top_message}}
 
     # construct table header
-    table_text = f"{header_padding}|{create_measure('report', report_len)}|{create_measure('source', ts_len)}|{create_measure('file_name', file_name_len)}|{create_measure('date', date_len)}|\n"
+    if slide_mode:
+        table_text = f"{header_padding}|{create_measure('file_name', file_name_len)}|{create_measure('slide_id', report_len)}|{create_measure('address', file_name_len)}|\n"
+    else:
+        table_text = f"{header_padding}|{create_measure('report', report_len)}|{create_measure('source', ts_len)}|{create_measure('file_name', file_name_len)}|{create_measure('date', date_len)}|\n"
     table_header = {
 			"type": "section",
 			"text": {
@@ -144,7 +156,10 @@ def multi_choice_block_builder(report, options):
     for i, option in enumerate(options.values.tolist()):
 
         # create row 
-        row = f'{create_measure(option[0], report_len)}|{create_measure(option[1], ts_len)}|{create_measure(option[2], file_name_len)}|{create_measure(option[3], date_len)}|'
+        if slide_mode:
+            row = f'{create_measure(option[2], file_name_len)}|{create_measure(option[4], report_len)}|{create_measure(option[5], file_name_len)}|'
+        else:
+            row = f'{create_measure(option[0], report_len)}|{create_measure(option[1], ts_len)}|{create_measure(option[2], file_name_len)}|{create_measure(option[3], date_len)}|'
        
         choice = {
             'text': {
@@ -220,7 +235,7 @@ def handle_get_slide(client, text, channel_id, ts):
             client.chat_postMessage(channel=channel_id, text=rest, thread_ts=ts)
         else:
             # give choices if not
-            client.chat_postMessage(channel=channel_id, thread_ts=ts, text='More information needed.', blocks=multi_choice_block_builder(slide_id, rest))
+            client.chat_postMessage(channel=channel_id, thread_ts=ts, text='More information needed.', blocks=multi_choice_block_builder(slide_id, rest, slide_mode = True))
         return
     else:
         # get necessary information
