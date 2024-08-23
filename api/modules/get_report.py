@@ -16,7 +16,7 @@ RP_ID = '<@U079GUP88LW>'
 
 # ssh into mercury using paramiko
 host = 'mercury.chicagobooth.edu'
-username = 'erouhani'
+username = 'mrumsey0'
 # increasing paramiko speed
 class FastTransport(pk.Transport):
     def __init__(self, sock):
