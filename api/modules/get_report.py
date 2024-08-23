@@ -12,7 +12,7 @@ load_dotenv()
 warnings.simplefilter(action='ignore', category=UnicodeWarning)
 
 # slack ID of RP in charge -- currently Esfandiar
-RP_ID = '<@U01KCEYLA85>'
+RP_ID = '<@U079GUP88LW>'
 
 # ssh into mercury using paramiko
 host = 'mercury.chicagobooth.edu'

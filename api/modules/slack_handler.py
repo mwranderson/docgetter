@@ -2,7 +2,7 @@ from typing import Union
 from .get_report import getreport, get_file_info
 
 # slack ID of RP in charge -- currently Esfandiar
-RP_ID = '<@U01KCEYLA85>'
+RP_ID = '<@U079GUP88LW>'
 
 # accepted transcript source inputs and their mappings
 ts_dict = {'0': 0, 'ref-pdf': 0, 'ref_pdf': 0, 'refpdf': 0, 
