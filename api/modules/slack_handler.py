@@ -60,7 +60,7 @@ def handle_request(client, event_data):
             # get directory
             directory = f"/project/FactSet/Doc_Retrieval_API/factset_slides_API/output/{parts[-2]}"
             # get slide
-            handle_get_slide(client, text, channel_id, ts, directory=directory)
+            handle_get_slide(client, text, channel_id, ts, directory=directory, filename=text)
             pass
         else:
             # transcript mode
